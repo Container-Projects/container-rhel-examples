@@ -1,3 +1,4 @@
+# docker build --rm -t rhel7.2/java:jre8 .
 FROM rhel7.2
 MAINTAINER Tommy Hughes <tohughes@redhat.com>
 
