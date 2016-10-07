@@ -1,6 +1,6 @@
 # docker build --rm -t rhel7.2/java:sdk8 .
-FROM rhel7.2
-MAINTAINER Tommy Hughes <tohughes@redhat.com>
+FROM registry.access.redhat.com/rhel7
+MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 
 # Default to UTF-8 file.encoding
 ENV LANG en_US.utf8
