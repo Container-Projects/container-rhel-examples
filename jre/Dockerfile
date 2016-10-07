@@ -1,4 +1,4 @@
-# docker build --rm -t rhel7.2/java:jre8 .
+# docker build --rm -t rhel7/java:jre8 .
 FROM registry.access.redhat.com/rhel7
 MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 
