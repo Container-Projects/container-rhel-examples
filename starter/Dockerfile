@@ -1,4 +1,4 @@
-# docker build --pull -t rhel7/demoapp .
+# docker build --pull -t rhel7/starter .
 FROM registry.access.redhat.com/rhel7
 MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 
