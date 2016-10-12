@@ -1,11 +1,62 @@
+# docker build --rm -t rhel7/demoapp .  
 FROM registry.access.redhat.com/rhel7
 MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
+
+## Atomic Labels
+# The UNINSTALL label by DEFAULT will attempt to delete a container (rm) and image (rmi) if the container NAME is the same as the actual IMAGE
+# NAME is set via -n flag to ALL atomic commands (install,run,stop,uninstall)
+# https://github.com/projectatomic/ContainerApplicationGenericLabels
+LABEL name="rhel7/demoapp" \
+      vendor="Acme Corp" \
+      version="3.2" \
+      release="1.0" \
+      build-date="2016-10-12" \
+      url="https://www.acme.io" \
+      architecture="x86_64" \
+      summary="Acme Corp's Demo App" \
+      description="Demo App will do ....." \
+      RUN='docker run -di --name ${NAME} \
+      -v /demo:/mnt/demo \
+      $IMAGE' \
+      STOP='docker stop ${NAME} && echo "Container ${NAME} has been stopped"'
+
+## OpenShift labels
+LABEL io.k8s.description="Demo App will do ....." \
+      io.k8s.display-name="Demo App" \
+      io.openshift.expose-services="443:https" \
+      io.openshift.tags="Acme,demo,demoapp"
 
 RUN set -x \
     && yum clean all \
     && yum-config-manager --disable \* \
+### Add additional RedHat repos to this line with another --enable parameter.
     && yum-config-manager --enable rhel-7-server-rpms \
-    && yum -y install --setopt=tsflags=nodocs deltarpm \
+### Add your package needs to this installation line... leave tar, git, & deltarpm in place. 
+    && yum -y install --setopt=tsflags=nodocs tar git deltarpm \
     && yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs \
-    && yum -y install --setopt=tsflags=nodocs iputils \
+### EPEL packages can be installed if necessary but, be sure to install non-epel packages before
+### adding EPEL repo to ensure that supported bits are used wherever possible.
+#    && curl -o epel-release-latest-7.noarch.rpm -SL https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm --retry 999 --retry-max-time 0 -C - \
+#    && rpm -ivh epel-release-latest-7.noarch.rpm \
+#    && rm epel-release-latest-7.noarch.rpm \
+#    && yum -y install --setopt=tsflags=nodocs jq \
     && yum clean all
+
+## Atomic Help File
+# Write in Markdown, it will be converted to man at build time.
+# https://github.com/projectatomic/container-best-practices/blob/master/creating/help.adoc
+COPY help.md /
+ENV MD2MAN_VERSION=v1.0.6 \
+    GO_VERSION=1.7.1 \
+    GOPATH=$HOME/go \
+    PATH=$PATH:/usr/local/go/bin
+RUN mkdir ~/go \
+    && curl -o go.linux-amd64.tar.gz -SL https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz --retry 999 --retry-max-time 0 -C - \
+    && tar -C /usr/local -xzf go.linux-amd64.tar.gz \
+    && go get -u github.com/cpuguy83/go-md2man \
+    && cd $GOPATH/src/github.com/cpuguy83/go-md2man \
+    && git checkout ${MD2MAN_VERSION} && go build \
+    && ./go-md2man -in /help.md -out /help.1 \
+    && rm -rf /go.linux-amd64.tar.gz /help.md ~/go /usr/local/go
+
+##### Add app-specific needs below. #####
