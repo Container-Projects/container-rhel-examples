@@ -6,25 +6,25 @@ MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 # The UNINSTALL label by DEFAULT will attempt to delete a container (rm) and image (rmi) if the container NAME is the same as the actual IMAGE
 # NAME is set via -n flag to ALL atomic commands (install,run,stop,uninstall)
 # https://github.com/projectatomic/ContainerApplicationGenericLabels
-LABEL name="rhel7/demoapp" \
+LABEL name="rhel7/starter" \
       vendor="Acme Corp" \
       version="3.2" \
       release="1.0" \
       build-date="2016-10-12" \
       url="https://www.acme.io" \
       architecture="x86_64" \
-      summary="Acme Corp's Demo App" \
-      description="Demo App will do ....." \
+      summary="Acme Corp's Starter App" \
+      description="Starter App will do ....." \
       RUN='docker run -di --name ${NAME} \
       -v /demo:/mnt/demo \
       $IMAGE' \
       STOP='docker stop ${NAME} && echo "Container ${NAME} has been stopped"'
 
 ## OpenShift labels
-LABEL io.k8s.description="Demo App will do ....." \
-      io.k8s.display-name="Demo App" \
+LABEL io.k8s.description="Starter App will do ....." \
+      io.k8s.display-name="Starter App" \
       io.openshift.expose-services="443:https" \
-      io.openshift.tags="Acme,demo,demoapp"
+      io.openshift.tags="Acme,starter,starterapp"
 
 EXPOSE 443
 
@@ -33,14 +33,19 @@ RUN set -x \
     && yum-config-manager --disable \* \
 ### Add additional RedHat repos to this line with another --enable parameter.
     && yum-config-manager --enable rhel-7-server-rpms \
-### Add your package needs to this installation line... leave tar, git, & deltarpm in place. 
+#    && yum-config-manager --enable rhel-7-server-extras-rpms \
+#    && yum-config-manager --enable rhel-7-server-optional-rpms \
+#    && yum-config-manager --enable rhel-server-rhscl-7-rpms \
+#    && yum-config-manager --enable rhel-7-server-ose-3.3-rpms \
+### Add your package needs to this installation line... leave tar, git, & deltarpm in place until after the help file conversion is complete.
     && yum -y install --setopt=tsflags=nodocs tar git deltarpm \
     && yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs \
 ### EPEL packages can be installed if necessary but, be sure to install non-epel packages before
-### adding EPEL repo to ensure that supported bits are used wherever possible.
+### adding the EPEL repo to ensure that supported bits are used wherever possible.
 #    && curl -o epel-release-latest-7.noarch.rpm -SL https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm --retry 999 --retry-max-time 0 -C - \
 #    && rpm -ivh epel-release-latest-7.noarch.rpm && rm epel-release-latest-7.noarch.rpm \
 #    && yum -y install --setopt=tsflags=nodocs jq \
+#    && yum-config-manager --disable epel \
     && yum clean all
 
 ## Atomic Help File
