@@ -26,6 +26,8 @@ LABEL io.k8s.description="Demo App will do ....." \
       io.openshift.expose-services="443:https" \
       io.openshift.tags="Acme,demo,demoapp"
 
+EXPOSE 443
+
 RUN set -x \
     && yum clean all \
     && yum-config-manager --disable \* \
