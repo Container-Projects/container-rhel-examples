@@ -37,7 +37,8 @@ RUN set -x \
 #    && yum-config-manager --enable rhel-7-server-optional-rpms \
 #    && yum-config-manager --enable rhel-server-rhscl-7-rpms \
 #    && yum-config-manager --enable rhel-7-server-ose-3.3-rpms \
-### Add your package needs to this installation line... leave tar, git, & deltarpm in place until after the help file conversion is complete.
+### Add your package needs to this installation line... 
+### leave tar, git, & deltarpm in place until after the help file conversion is complete.
     && yum -y install --setopt=tsflags=nodocs tar git deltarpm \
     && yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs \
 ### EPEL packages can be installed if necessary but, be sure to install non-epel packages before
