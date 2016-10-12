@@ -16,7 +16,7 @@ LABEL name="rhel7/starter" \
       summary="Acme Corp's Starter App" \
       description="Starter App will do ....." \
       RUN='docker run -di --name ${NAME} \
-      -v /demo:/mnt/demo \
+      -p 443:443 \
       $IMAGE' \
       STOP='docker stop ${NAME} && echo "Container ${NAME} has been stopped"'
 
