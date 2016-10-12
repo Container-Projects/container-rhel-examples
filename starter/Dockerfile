@@ -37,8 +37,7 @@ RUN set -x \
 ### EPEL packages can be installed if necessary but, be sure to install non-epel packages before
 ### adding EPEL repo to ensure that supported bits are used wherever possible.
 #    && curl -o epel-release-latest-7.noarch.rpm -SL https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm --retry 999 --retry-max-time 0 -C - \
-#    && rpm -ivh epel-release-latest-7.noarch.rpm \
-#    && rm epel-release-latest-7.noarch.rpm \
+#    && rpm -ivh epel-release-latest-7.noarch.rpm && rm epel-release-latest-7.noarch.rpm \
 #    && yum -y install --setopt=tsflags=nodocs jq \
     && yum clean all
 
