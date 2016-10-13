@@ -12,25 +12,21 @@ MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 LABEL Name="acme/starter" \
       Vendor="Acme Corp" \
       Version="3.2" \
-      Release="1" \
-      Build-date="2016-10-12" \
+      Release="7" \
+      build-date="2016-10-12T14:12:54.553894Z" \
       url="https://www.acme.io" \
-      Architecture="x86_64" \
-      distribution-scope="authoritative-source-only" \
-      authoritative-source-url="registry.access.redhat.com" \
       summary="Acme Corp's Starter App" \
       description="Starter App will do ....." \
       RUN='docker run -di --name ${NAME} \
       -p 443:443 \
-      $IMAGE' \
-      STOP='docker stop ${NAME} && echo "Container ${NAME} has been stopped"'
+      ${IMAGE}' \
+      STOP='docker stop ${NAME}'
 
 ### OpenShift labels
 LABEL io.k8s.description="Starter App will do ....." \
       io.k8s.display-name="Starter App" \
       io.openshift.expose-services="443:https" \
-      io.openshift.tags="Acme,starter,starterapp" \
-      BZComponent="rhel-server-docker"
+      io.openshift.tags="Acme,starter,starterapp"
 
 ### Atomic Help File
 ### Write in Markdown, it will be converted to man format at build time.
