@@ -33,7 +33,7 @@ LABEL io.k8s.description="Starter App will do ....." \
       BZComponent="rhel-server-docker"
 
 ### Atomic Help File
-### Write in Markdown, it will be converted to man at build time.
+### Write in Markdown, it will be converted to man format at build time.
 ### https://github.com/projectatomic/container-best-practices/blob/master/creating/help.adoc
 COPY help.md /
 
@@ -46,9 +46,9 @@ RUN set -x \
 #    && yum-config-manager --enable rhel-7-server-extras-rpms \
 #    && yum-config-manager --enable rhel-server-rhscl-7-rpms \
 #    && yum-config-manager --enable rhel-7-server-ose-3.3-rpms \
+    && yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs \
 ### Add your package needs to this installation line... 
     && yum -y install --setopt=tsflags=nodocs golang-github-cpuguy83-go-md2man \
-    && yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs \
 ### EPEL packages can be installed if necessary but, be sure to install non-epel packages before
 ### adding the EPEL repo to ensure that supported bits are used wherever possible.
 #    && curl -o epel-release-latest-7.noarch.rpm -SL https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm --retry 999 --retry-max-time 0 -C - \
@@ -56,9 +56,9 @@ RUN set -x \
 #    && yum -y install --setopt=tsflags=nodocs jq \
 #    && yum-config-manager --disable epel \
     && go-md2man -in help.md -out help.1 \
-    && rm -f help.md \
-### leave tar & git in place until after the help file conversion is complete.
+### leave go-md2man installed until after the help file conversion is complete.
     && yum -y remove golang-github-cpuguy83-go-md2man \
+    && rm -f help.md \
     && yum clean all
 
 EXPOSE 443
