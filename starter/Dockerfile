@@ -8,6 +8,7 @@ MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 # The UNINSTALL label by DEFAULT will attempt to delete a container (rm) and image (rmi) if the container NAME is the same as the actual IMAGE
 # NAME is set via -n flag to ALL atomic commands (install,run,stop,uninstall)
 # https://github.com/projectatomic/ContainerApplicationGenericLabels
+# https://github.com/projectatomic/ContainerApplicationGenericLabels/blob/master/vendor/redhat/labels.md
 LABEL name="rhel7/starter" \
       vendor="Acme Corp" \
       version="3.2" \
@@ -15,6 +16,8 @@ LABEL name="rhel7/starter" \
       build-date="2016-10-12" \
       url="https://www.acme.io" \
       architecture="x86_64" \
+      distribution-scope="authoritative-source-only" \
+      authoritative-source-url="registry.access.redhat.com" \
       summary="Acme Corp's Starter App" \
       description="Starter App will do ....." \
       RUN='docker run -di --name ${NAME} \
