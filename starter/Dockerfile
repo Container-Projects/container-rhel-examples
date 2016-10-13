@@ -1,4 +1,4 @@
-# docker build --pull -t rhel7/starter .
+# docker build --pull -t acme/starter .
 FROM registry.access.redhat.com/rhel7
 MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 ## uncomment "ENV container docker" if using systemd in container
@@ -9,7 +9,7 @@ MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 # NAME is set via -n flag to ALL atomic commands (install,run,stop,uninstall)
 # https://github.com/projectatomic/ContainerApplicationGenericLabels
 # https://github.com/projectatomic/ContainerApplicationGenericLabels/blob/master/vendor/redhat/labels.md
-LABEL name="rhel7/starter" \
+LABEL name="acme/starter" \
       vendor="Acme Corp" \
       version="3.2" \
       release="1.0" \
