@@ -57,19 +57,27 @@ RUN set -x \
     && rm -f help.md \
     && yum clean all
 
-EXPOSE 443
-
-ENV HOME=/opt/app-root/src \
+ENV APP_ROOT=/opt/app-root \
     USER_NAME=default \
     USER_UID=1001
-### Setup the 'default' user that is used for the build execution and for the
+ENV HOME=${APP_ROOT}/src
+ENV PATH=${HOME}/bin:${APP_ROOT}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+### Setup the user that is used for the build execution and for the
 ### application runtime execution by default.
-RUN mkdir -p ${HOME} && \
+RUN mkdir -p ${HOME}/bin ${APP_ROOT}/bin && \
     useradd -u ${USER_UID} -r -g 0 -d ${HOME} -s /sbin/nologin \
             -c "${USER_NAME} Application User" ${USER_NAME} && \
     chown -R ${USER_UID}:0 /opt/app-root
 
+##### Add app-specific needs below. #####
+COPY run.sh ${HOME}/bin/
+RUN chmod ug+x ${HOME}/bin/run.sh \
+    && chown ${USER_UID}:0 ${HOME}/bin/run.sh
+
+### red hat compliant containers should NOT run as root
 USER ${USER_UID}
 WORKDIR ${HOME}
-##### Add app-specific needs below. #####
-#CMD ["./bin/run.sh"]
+
+EXPOSE 443
+
+CMD run.sh
