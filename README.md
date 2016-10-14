@@ -1,4 +1,4 @@
-docker build --pull -t acme/starter starter
+docker build --pull -t acme/starter -t acme/starter:v3.2 .
 
 docker build --pull -t rhel7/java:jre8 jre
 
