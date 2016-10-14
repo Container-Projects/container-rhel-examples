@@ -4,9 +4,29 @@ MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 
 # Default to UTF-8 file.encoding
 ENV LANG en_US.utf8
-
-# Install necessary packages
-RUN yum -y update && yum -y install java-1.8.0-openjdk && yum clean all
-
 # Set the JAVA_HOME variable to make it clear where Java is located
 ENV JAVA_HOME /usr/lib/jvm/jre
+
+RUN set -x \
+    && yum clean all \
+    && yum-config-manager --disable \* \
+    && yum-config-manager --enable rhel-7-server-rpms \
+    && yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs \
+    && yum -y install --setopt=tsflags=nodocs java-1.8.0-openjdk \
+    && yum clean all
+
+ENV APP_ROOT=/opt/app-root \
+    USER_NAME=default \
+    USER_UID=1001
+ENV HOME=${APP_ROOT}/src
+ENV PATH=${HOME}/bin:${APP_ROOT}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+### Setup the user that is used for the build execution and for the
+### application runtime execution by default.
+RUN mkdir -p ${HOME}/bin ${APP_ROOT}/bin && \
+    useradd -u ${USER_UID} -r -g 0 -d ${HOME} -s /sbin/nologin \
+            -c "${USER_NAME} Application User" ${USER_NAME} && \
+    chown -R ${USER_UID}:0 /opt/app-root
+
+### Red Hat compliant containers should NOT run as root
+USER ${USER_UID}
+WORKDIR ${HOME}
