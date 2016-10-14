@@ -74,7 +74,7 @@ COPY run.sh ${HOME}/bin/
 RUN chmod ug+x ${HOME}/bin/run.sh \
     && chown ${USER_UID}:0 ${HOME}/bin/run.sh
 
-### red hat compliant containers should NOT run as root
+### Red Hat compliant containers should NOT run as root
 USER ${USER_UID}
 WORKDIR ${HOME}
 
