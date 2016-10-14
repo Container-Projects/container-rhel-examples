@@ -17,7 +17,7 @@ LABEL Name="acme/starter" \
       url="https://www.acme.io" \
       summary="Acme Corp's Starter App" \
       description="Starter App will do ....." \
-      RUN='docker run -di --name ${NAME} \
+      RUN='docker run -tdi --name ${NAME} \
       -p 443:443 \
       ${IMAGE}' \
       STOP='docker stop ${NAME}'
@@ -59,8 +59,17 @@ RUN set -x \
 
 EXPOSE 443
 
-USER 0
-### prefer use of non-root user where possible
-# USER 1001
+ENV HOME=/opt/app-root/src \
+    USER_NAME=default \
+    USER_UID=1001
+### Setup the 'default' user that is used for the build execution and for the
+### application runtime execution by default.
+RUN mkdir -p ${HOME} && \
+    useradd -u ${USER_UID} -r -g 0 -d ${HOME} -s /sbin/nologin \
+            -c "${USER_NAME} Application User" ${USER_NAME} && \
+    chown -R ${USER_UID}:0 /opt/app-root
 
+USER ${USER_UID}
+WORKDIR ${HOME}
 ##### Add app-specific needs below. #####
+#CMD ["./bin/run.sh"]
