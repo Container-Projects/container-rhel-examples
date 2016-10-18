@@ -5,10 +5,9 @@ MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 # ENV container docker
 
 ### Atomic Labels
-### The UNINSTALL label by DEFAULT will attempt to delete a container (rm) and image (rmi) if the container NAME is the same as the actual IMAGE
-### NAME is set via -n flag to ALL atomic commands (install,run,stop,uninstall)
+### The UNINSTALL label by DEFAULT will attempt to delete a container (rm) and image (rmi) if the container NAME
+### is the same as the actual IMAGE. NAME is set via -n flag to ALL atomic commands (install,run,stop,uninstall).
 ### https://github.com/projectatomic/ContainerApplicationGenericLabels
-### https://github.com/projectatomic/ContainerApplicationGenericLabels/blob/master/vendor/redhat/labels.md
 LABEL Name="acme/starter" \
       Vendor="Acme Corp" \
       Version="3.2" \
@@ -38,7 +37,7 @@ RUN set -x && \
     yum-config-manager --disable \* && \
     yum-config-manager --enable rhel-7-server-rpms && \
     yum-config-manager --enable rhel-7-server-optional-rpms && \
-### Add additional RedHat repos
+### Add additional Red Hat repos
 #    yum-config-manager --enable rhel-7-server-extras-rpms && \
 #    yum-config-manager --enable rhel-server-rhscl-7-rpms && \
 #    yum-config-manager --enable rhel-7-server-ose-3.3-rpms && \
@@ -47,7 +46,8 @@ RUN set -x && \
     yum -y install --setopt=tsflags=nodocs golang-github-cpuguy83-go-md2man && \
 ### EPEL packages can be installed if necessary but, install non-epel packages before
 ### adding the EPEL repo so that supported bits are used wherever possible.
-#    curl -o epel-release-latest-7.noarch.rpm -SL https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm --retry 999 --retry-max-time 0 -C - && \
+#    curl -o epel-release-latest-7.noarch.rpm -SL \
+#    https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm --retry 999 --retry-max-time 0 -C - && \
 #    rpm -ivh epel-release-latest-7.noarch.rpm && rm epel-release-latest-7.noarch.rpm && \
 #    yum -y install --setopt=tsflags=nodocs jq && \
 #    yum-config-manager --disable epel && \
@@ -57,19 +57,19 @@ RUN set -x && \
     rm -f help.md && \
     yum clean all
 
+### Setup the user that is used for the build execution and
+### for the application runtime execution by default.
 ENV APP_ROOT=/opt/app-root \
     USER_NAME=default \
     USER_UID=1000160001
 ENV HOME=${APP_ROOT}/src
 ENV PATH=${HOME}/bin:${APP_ROOT}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-### Setup the user that is used for the build execution and for the
-### application runtime execution by default.
 RUN mkdir -p ${HOME}/bin ${APP_ROOT}/bin && \
     useradd -l -u ${USER_UID} -r -g 0 -d ${HOME} -s /sbin/nologin \
-            -c "${USER_NAME} Application User" ${USER_NAME} && \
+            -c "${USER_NAME} application user" ${USER_NAME} && \
     chown -R ${USER_UID}:0 /opt/app-root
 
-##### Add app-specific needs below. #####
+####### Add app-specific needs below. #######
 COPY run.sh ${HOME}/bin/
 RUN chmod ug+x ${HOME}/bin/run.sh && \
     chown ${USER_UID}:0 ${HOME}/bin/run.sh
@@ -77,7 +77,5 @@ RUN chmod ug+x ${HOME}/bin/run.sh && \
 ### Red Hat compliant containers should NOT run as root
 USER ${USER_UID}
 WORKDIR ${HOME}
-
 EXPOSE 443
-
 CMD run.sh
