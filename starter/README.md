@@ -2,7 +2,7 @@
 This image aims to include Red Hat's most critical [container best practices](http://docs.projectatomic.io/container-best-practices/).
 
 ### Building an image on RHEL
-The easiest way to get started building your own rhel-based image is to first ensure you're using Red Hat's supported Docker package on a registered RHEL7 or Atomic Server.
+The easiest way to get started building your own rhel-based image is to first ensure you're using Red Hat's supported docker package on a registered RHEL7 or Atomic Server.
 
 Be sure you've enabled the following repos after your system is registered:
 ```shell
