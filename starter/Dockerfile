@@ -69,13 +69,14 @@ RUN mkdir -p ${HOME}/bin ${APP_ROOT}/bin && \
             -c "${USER_NAME} application user" ${USER_NAME} && \
     chown -R ${USER_UID}:0 /opt/app-root
 
-####### Add app-specific needs below. #######
-COPY run.sh ${HOME}/bin/
-RUN chmod ug+x ${HOME}/bin/run.sh && \
-    chown ${USER_UID}:0 ${HOME}/bin/run.sh
-
-### Red Hat compliant containers should NOT run as root
+### Containers should NOT run as root as a best practice
 USER ${USER_UID}
 WORKDIR ${HOME}
+
+####### Add app-specific needs below. #######
+RUN echo $'#!/bin/sh\n\
+tail -f /dev/null' > ${HOME}/bin/run.sh && \
+    chmod ug+x ${HOME}/bin/run.sh
+
 EXPOSE 8443
 CMD run.sh
