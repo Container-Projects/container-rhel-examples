@@ -46,8 +46,8 @@ RUN set -x && \
     yum -y install --setopt=tsflags=nodocs golang-github-cpuguy83-go-md2man && \
 ### EPEL packages can be installed if necessary but, install non-epel packages before
 ### adding the EPEL repo so that supported bits are used wherever possible.
-#    curl -o epel-release-latest-7.noarch.rpm -SL \
-#    https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm --retry 999 --retry-max-time 0 -C - && \
+#    curl -o epel-release-latest-7.noarch.rpm -SL https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
+#            --retry 999 --retry-max-time 0 -C - && \
 #    rpm -ivh epel-release-latest-7.noarch.rpm && rm epel-release-latest-7.noarch.rpm && \
 #    yum -y install --setopt=tsflags=nodocs jq && \
 #    yum-config-manager --disable epel && \

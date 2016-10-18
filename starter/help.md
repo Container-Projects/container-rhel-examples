@@ -51,10 +51,10 @@ That atomic command runs the docker command set in this label:
 `RUN=`
 
   LABEL RUN='docker run -tdi --name ${NAME} \
-        -p 443:443 \
+        -p 8443:8443 \
         $IMAGE' \
 
-  The contents of the RUN label tells an `atomic run acme/starter` command to open port 443 & set the name of the container.
+  The contents of the RUN label tells an `atomic run acme/starter` command to open port 8443 & set the name of the container.
 
 `Name=`
 
