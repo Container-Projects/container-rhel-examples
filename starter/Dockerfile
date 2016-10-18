@@ -69,6 +69,11 @@ RUN mkdir -p ${HOME}/bin ${APP_ROOT}/bin && \
             -c "${USER_NAME} application user" ${USER_NAME} && \
     chown -R ${USER_UID}:0 /opt/app-root
 
+### if COPYing files that require permission mods, do so before leaving root USER
+# COPY run.sh ${HOME}/bin/
+# RUN chmod ug+x ${HOME}/bin/run.sh && \
+#     chown ${USER_UID}:0 ${HOME}/bin/run.sh
+
 ### Containers should NOT run as root as a best practice
 USER ${USER_UID}
 WORKDIR ${HOME}
