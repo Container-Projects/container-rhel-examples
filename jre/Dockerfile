@@ -1,10 +1,10 @@
-# docker build --pull -t rhel7/java:jre8 .
+### docker build --pull -t rhel7/java:jre8 .
 FROM registry.access.redhat.com/rhel7
 MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 
-# Default to UTF-8 file.encoding
+### Default to UTF-8 file.encoding
 ENV LANG en_US.utf8
-# Set the JAVA_HOME variable to make it clear where Java is located
+### Set the JAVA_HOME variable to make it clear where Java is located
 ENV JAVA_HOME /usr/lib/jvm/jre
 
 RUN set -x \
@@ -17,14 +17,12 @@ RUN set -x \
 
 ENV APP_ROOT=/opt/app-root \
     USER_NAME=default \
-    USER_UID=1001
+    USER_UID=1000160001
 ENV HOME=${APP_ROOT}/src
 ENV PATH=${HOME}/bin:${APP_ROOT}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-### Setup the user that is used for the build execution and for the
-### application runtime execution by default.
 RUN mkdir -p ${HOME}/bin ${APP_ROOT}/bin && \
-    useradd -u ${USER_UID} -r -g 0 -d ${HOME} -s /sbin/nologin \
-            -c "${USER_NAME} Application User" ${USER_NAME} && \
+    useradd -l -u ${USER_UID} -r -g 0 -d ${HOME} -s /sbin/nologin \
+            -c "${USER_NAME} application user" ${USER_NAME} && \
     chown -R ${USER_UID}:0 /opt/app-root
 
 ### Red Hat compliant containers should NOT run as root
