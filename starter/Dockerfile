@@ -17,14 +17,14 @@ LABEL Name="acme/starter" \
       summary="Acme Corp's Starter App" \
       description="Starter App will do ....." \
       RUN='docker run -tdi --name ${NAME} \
-      -p 443:443 \
+      -p 8443:8443 \
       ${IMAGE}' \
       STOP='docker stop ${NAME}'
 
 ### OpenShift labels
 LABEL io.k8s.description="Starter App will do ....." \
       io.k8s.display-name="Starter App" \
-      io.openshift.expose-services="443:https" \
+      io.openshift.expose-services="8443:8443" \
       io.openshift.tags="Acme,starter,starterapp"
 
 ### Atomic Help File
@@ -77,5 +77,5 @@ RUN chmod ug+x ${HOME}/bin/run.sh && \
 ### Red Hat compliant containers should NOT run as root
 USER ${USER_UID}
 WORKDIR ${HOME}
-EXPOSE 443
+EXPOSE 8443
 CMD run.sh
