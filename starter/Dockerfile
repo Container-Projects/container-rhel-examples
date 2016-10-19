@@ -40,6 +40,7 @@ RUN set -x && \
 ### Add additional Red Hat repos
 #    yum-config-manager --enable rhel-7-server-extras-rpms && \
 #    yum-config-manager --enable rhel-server-rhscl-7-rpms && \
+#    yum-config-manager --enable rhel-7-server-thirdparty-oracle-java-rpms && \
 #    yum-config-manager --enable rhel-7-server-ose-3.3-rpms && \
     yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs && \
 ### Add your package needs to this installation line... 
