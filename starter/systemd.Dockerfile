@@ -19,14 +19,15 @@ LABEL Name="acme/starter" \
       -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
       --tmpfs /run \
       --tmpfs /tmp \
-      -p 80:80 \
+      -p 8080:80 \
+      -p 8443:443 \
       ${IMAGE}' \
       STOP='docker stop ${NAME}'
 
 ### OpenShift labels
 LABEL io.k8s.description="Starter App will do ....." \
       io.k8s.display-name="Starter App" \
-      io.openshift.expose-services="80:http" \
+      io.openshift.expose-services="8080:http,8443:https" \
       io.openshift.tags="Acme,starter,starterapp"
 
 ### Atomic Help File
@@ -45,8 +46,9 @@ RUN set -x && \
 #    yum-config-manager --enable rhel-7-server-thirdparty-oracle-java-rpms && \
 #    yum-config-manager --enable rhel-7-server-ose-3.3-rpms && \
     yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs && \
+    yum -y install --setopt=tsflags=nodocs sudo golang-github-cpuguy83-go-md2man && \
 ### Add your package needs to this installation line... 
-    yum -y install --setopt=tsflags=nodocs sudo golang-github-cpuguy83-go-md2man httpd && \
+    yum -y install --setopt=tsflags=nodocs httpd mod_ssl && \
 ### EPEL packages can be installed if necessary but, install non-epel packages before
 ### adding the EPEL repo so that supported bits are used wherever possible.
 #    curl -o epel-release-latest-7.noarch.rpm -SL https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
@@ -68,7 +70,7 @@ ENV APP_ROOT=/opt/app-root \
 ENV HOME=${APP_ROOT}/src
 ENV PATH=${HOME}/bin:${APP_ROOT}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 RUN mkdir -p ${HOME}/bin ${APP_ROOT}/bin && \
-    useradd -l -u ${USER_UID} -r -g 0 -d ${HOME} \
+    useradd -l -u ${USER_UID} -r -g 0 -d ${HOME} -s /sbin/nologin \
             -c "${USER_NAME} application user" ${USER_NAME} && \
     chown -R ${USER_UID}:0 /opt/app-root
 
@@ -97,5 +99,5 @@ RUN echo $'#!/bin/sh\n\
 tail -f /dev/null' > ${HOME}/bin/run.sh && \
     chmod ug+x ${HOME}/bin/run.sh
 
-EXPOSE 80
+EXPOSE 80 443
 CMD sudo /usr/lib/systemd/systemd --system --unit=multi-user.target
