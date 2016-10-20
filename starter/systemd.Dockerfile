@@ -82,8 +82,8 @@ RUN systemctl set-default multi-user.target && \
     sed -i 's/Defaults    requiretty/# Defaults    requiretty/' /etc/sudoers && \
     systemctl enable httpd && \
     # systemctl enable <service> && \
-    systemctl mask dev-hugepages.mount sys-fs-fuse-connections.mount systemd-journal-flush.service \
-        systemd-update-utmp-runlevel.service systemd-update-utmp.service
+    systemctl mask dev-hugepages.mount sys-fs-fuse-connections.mount \
+            systemd-journal-flush.service systemd-update-utmp-runlevel.service systemd-update-utmp.service
     
 ### if COPYing files that require permission mods, do so before leaving root USER
 # COPY run.sh ${HOME}/bin/
