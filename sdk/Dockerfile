@@ -25,6 +25,6 @@ RUN mkdir -p ${HOME}/bin ${APP_ROOT}/bin && \
             -c "${USER_NAME} application user" ${USER_NAME} && \
     chown -R ${USER_UID}:0 /opt/app-root
 
-### Red Hat compliant containers should NOT run as root
+### Containers should NOT run as root as a best practice
 USER ${USER_UID}
 WORKDIR ${HOME}
