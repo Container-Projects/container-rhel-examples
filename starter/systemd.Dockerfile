@@ -15,7 +15,6 @@ LABEL Name="acme/starter" \
       summary="Acme Corp's Starter App" \
       description="Starter App will do ....." \
       RUN='docker run -tdi --name ${NAME} \
-      --cap-add SYS_ADMIN \
       -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
       --tmpfs /run \
       --tmpfs /tmp \
