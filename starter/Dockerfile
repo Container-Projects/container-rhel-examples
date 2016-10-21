@@ -1,8 +1,6 @@
 ### docker build --pull -t acme/starter -t acme/starter:v3.2 .
 FROM registry.access.redhat.com/rhel7
 MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
-### uncomment "ENV container docker" if using systemd in container
-# ENV container docker
 
 ### Atomic Labels
 ### The UNINSTALL label by DEFAULT will attempt to delete a container (rm) and image (rmi) if the container NAME
