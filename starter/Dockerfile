@@ -38,12 +38,12 @@ RUN yum clean all && \
 ### Add additional Red Hat repos
 #    yum-config-manager --enable rhel-7-server-extras-rpms && \
 #    yum-config-manager --enable rhel-server-rhscl-7-rpms && \
-#    yum-config-manager --enable rhel-7-server-thirdparty-oracle-java-rpms && \
-#    yum-config-manager --enable rhel-7-server-ose-3.3-rpms && \
     yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs && \
-    yum -y install --setopt=tsflags=nodocs golang-github-cpuguy83-go-md2man && \
 ### Add your package needs to this installation line... 
     yum -y install --setopt=tsflags=nodocs httpd mod_ssl && \
+### help.md conversion
+    yum -y install golang-github-cpuguy83-go-md2man && go-md2man -in help.md -out help.1 && \
+    yum -y remove golang-github-cpuguy83-go-md2man && rm -f help.md && \
 ### EPEL packages can be installed if necessary but, install non-epel packages before
 ### adding the EPEL repo so that supported bits are used wherever possible.
 #    curl -o epel-release-latest-7.noarch.rpm -SL https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
@@ -51,10 +51,6 @@ RUN yum clean all && \
 #    rpm -ivh epel-release-latest-7.noarch.rpm && rm epel-release-latest-7.noarch.rpm && \
 #    yum -y install --setopt=tsflags=nodocs jq && \
 #    yum-config-manager --disable epel && \
-    go-md2man -in help.md -out help.1 && \
-### leave go-md2man installed until after the help file conversion is complete.
-    yum -y remove golang-github-cpuguy83-go-md2man && \
-    rm -f help.md && \
     yum clean all
 
 ### Setup the user that is used for the build execution and
