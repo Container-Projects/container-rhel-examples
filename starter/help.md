@@ -23,8 +23,9 @@ Stops the installed container
 Removes the installed container, not the image
 
 The container itself consists of:
-    - rhel7 base image
-    - atomic help file
+    - RHEL7 base image
+    - Apache/2.4 w/ SSL
+    - Atomic help file
 
 Files added to the container during docker build include: /help.1.
 
@@ -51,10 +52,11 @@ That atomic command runs the docker command set in this label:
 `RUN=`
 
   LABEL RUN='docker run -tdi --name ${NAME} \
+        -p 8080:8080 \
         -p 8443:8443 \
         $IMAGE' \
 
-  The contents of the RUN label tells an `atomic run acme/starter` command to open port 8443 & set the name of the container.
+  The contents of the RUN label tells an `atomic run acme/starter` command to open ports 8080/8443 & set the name of the container.
 
 `Name=`
 

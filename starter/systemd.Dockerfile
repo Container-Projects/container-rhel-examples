@@ -34,8 +34,7 @@ LABEL io.k8s.description="Starter App will do ....." \
 ### https://github.com/projectatomic/container-best-practices/blob/master/creating/help.adoc
 COPY help.md /
 
-RUN set -x && \
-    yum clean all && \
+RUN yum clean all && \
     yum-config-manager --disable \* && \
     yum-config-manager --enable rhel-7-server-rpms && \
     yum-config-manager --enable rhel-7-server-optional-rpms && \
@@ -66,9 +65,9 @@ RUN set -x && \
 ENV APP_ROOT=/opt/app-root \
     USER_NAME=default \
     USER_UID=1000160001
-ENV HOME=${APP_ROOT}/src
-ENV PATH=${HOME}/bin:${APP_ROOT}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-RUN mkdir -p ${HOME}/bin ${APP_ROOT}/bin && \
+ENV HOME=${APP_ROOT}/src \
+    PATH=$PATH:${APP_ROOT}/bin
+RUN mkdir -p ${HOME} ${APP_ROOT}/bin && \
     useradd -l -u ${USER_UID} -r -g 0 -d ${HOME} -s /sbin/nologin \
             -c "${USER_NAME} application user" ${USER_NAME} && \
     chown -R ${USER_UID}:0 /opt/app-root
@@ -85,18 +84,17 @@ RUN systemctl set-default multi-user.target && \
             systemd-journal-flush.service systemd-update-utmp-runlevel.service systemd-update-utmp.service
     
 ### if COPYing files that require permission mods, do so before leaving root USER
-# COPY run.sh ${HOME}/bin/
-# RUN chmod ug+x ${HOME}/bin/run.sh && \
-#     chown ${USER_UID}:0 ${HOME}/bin/run.sh
+# COPY run.sh ${APP_ROOT}/bin/
+# RUN chmod ug+x ${APP_ROOT}/bin/run.sh && \
+#     chown ${USER_UID}:0 ${APP_ROOT}/bin/run.sh
 
 ### Containers should NOT run as root as a best practice
 USER ${USER_UID}
 WORKDIR ${HOME}
 
 ####### Add app-specific needs below. #######
-RUN echo $'#!/bin/sh\n\
-tail -f /dev/null' > ${HOME}/bin/run.sh && \
-    chmod ug+x ${HOME}/bin/run.sh
-
+# RUN echo $'#!/bin/sh\n\
+# tail -f /dev/null' > ${APP_ROOT}/bin/run.sh && \
+#     chmod ug+x ${APP_ROOT}/bin/run.sh
 EXPOSE 80 443
 CMD sudo /usr/lib/systemd/systemd --system --unit=multi-user.target
