@@ -74,9 +74,8 @@ RUN mkdir -p ${HOME} ${APP_ROOT}/bin && \
 # COPY run.sh ${APP_ROOT}/bin/
 # RUN chmod ug+x ${APP_ROOT}/bin/run.sh && \
 #     chown ${USER_UID}:0 ${APP_ROOT}/bin/run.sh
-RUN chown -R ${USER_UID}:0 /run/httpd /etc/httpd && \
-    chmod g+r /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key && \
-    chmod -R 770 /var/log/httpd /run/httpd
+RUN chown -R ${USER_UID}:0 /run/httpd /etc/httpd /var/log/httpd && \
+    chmod g+r /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key
 
 ### Containers should NOT run as root as a best practice
 USER ${USER_UID}
