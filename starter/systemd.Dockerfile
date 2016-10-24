@@ -83,6 +83,7 @@ RUN systemctl set-default multi-user.target && \
     systemctl mask dev-hugepages.mount sys-fs-fuse-connections.mount \
             systemd-journal-flush.service systemd-update-utmp-runlevel.service systemd-update-utmp.service
     
+####### Add app-specific needs below. #######
 ### if COPYing files that require permission mods, do so before leaving root USER
 # COPY run.sh ${APP_ROOT}/bin/
 # RUN chmod ug+x ${APP_ROOT}/bin/run.sh && \
@@ -92,7 +93,6 @@ RUN systemctl set-default multi-user.target && \
 USER ${USER_UID}
 WORKDIR ${HOME}
 
-####### Add app-specific needs below. #######
 # RUN echo $'#!/bin/sh\n\
 # tail -f /dev/null' > ${APP_ROOT}/bin/run.sh && \
 #     chmod ug+x ${APP_ROOT}/bin/run.sh
