@@ -75,7 +75,6 @@ RUN mkdir -p ${HOME} ${APP_ROOT}/bin && \
 # RUN chmod ug+x ${APP_ROOT}/bin/run.sh && \
 #     chown ${USER_UID}:0 ${APP_ROOT}/bin/run.sh
 RUN chown -R ${USER_UID}:0 /run/httpd /etc/httpd && \
-    chgrp -R 0 /run/httpd && \
     chmod g+r /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key && \
     chmod -R 770 /var/log/httpd /run/httpd
 
