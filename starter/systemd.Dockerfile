@@ -70,7 +70,6 @@ RUN mkdir -p ${HOME} ${APP_ROOT}/bin && \
 
 ### these are systemd requirements
 ENV container docker
-VOLUME ["/sys/fs/cgroup", "/run", "/tmp"]
 RUN systemctl set-default multi-user.target && \
     echo "${USER_NAME}   ALL= NOPASSWD: /usr/lib/systemd/systemd, /usr/bin/systemctl, /bin/journalctl" >> /etc/sudoers && \
     sed -i 's/Defaults    requiretty/# Defaults    requiretty/' /etc/sudoers && \
