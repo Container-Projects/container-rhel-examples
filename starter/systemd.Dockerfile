@@ -60,7 +60,7 @@ RUN yum clean all && \
 ### for the application runtime execution by default.
 ENV APP_ROOT=/opt/app-root \
     USER_NAME=default \
-    USER_UID=1000160001
+    USER_UID=1000100001
 ENV HOME=${APP_ROOT}/src \
     PATH=$PATH:${APP_ROOT}/bin
 RUN mkdir -p ${HOME} ${APP_ROOT}/bin && \
