@@ -3,8 +3,6 @@ FROM registry.access.redhat.com/rhel7
 MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 
 ### Atomic Labels
-### The UNINSTALL label by DEFAULT will attempt to delete a container (rm) and image (rmi) if the container NAME
-### is the same as the actual IMAGE. NAME is set via -n flag to ALL atomic commands (install,run,stop,uninstall).
 ### https://github.com/projectatomic/ContainerApplicationGenericLabels
 LABEL Name="acme/starter" \
       Vendor="Acme Corp" \
@@ -26,8 +24,7 @@ LABEL io.k8s.description="Starter App will do ....." \
       io.openshift.expose-services="8080:8080,8443:8443" \
       io.openshift.tags="Acme,starter,starterapp"
 
-### Atomic Help File
-### Write in Markdown, it will be converted to man format at build time.
+### Atomic Help File - Write in Markdown, it will be converted to man format at build time.
 ### https://github.com/projectatomic/container-best-practices/blob/master/creating/help.adoc
 COPY help.md /
 
@@ -56,8 +53,7 @@ RUN yum clean all && \
 #    yum-config-manager --disable epel && \
     yum clean all
 
-### Setup the user that is used for the build execution and
-### for the application runtime execution by default.
+### Setup the user that is used for the build execution and for the application runtime execution by default.
 ENV APP_ROOT=/opt/app-root \
     USER_NAME=default \
     USER_UID=10001
@@ -73,9 +69,6 @@ RUN mkdir -p ${HOME} ${APP_ROOT}/bin && \
 
 ####### Add app-specific needs below. #######
 ### if COPYing files that require permission mods, do so before leaving root USER
-# COPY run.sh ${APP_ROOT}/bin/
-# RUN chmod ug+x ${APP_ROOT}/bin/run.sh && \
-#     chown ${USER_UID}:0 ${APP_ROOT}/bin/run.sh
 RUN chown -R ${USER_UID}:0 /run/httpd /etc/httpd /var/log/httpd && \
     chmod -R g+rw /run/httpd /etc/httpd /var/log/httpd && \
     find /etc/httpd -type d -exec chmod g+x {} + && \
