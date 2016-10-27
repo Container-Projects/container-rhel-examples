@@ -17,7 +17,7 @@ RUN set -x \
 
 ENV APP_ROOT=/opt/app-root \
     USER_NAME=default \
-    USER_UID=1000100001
+    USER_UID=10001
 ENV HOME=${APP_ROOT}/src
 ENV PATH=${HOME}/bin:${APP_ROOT}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 RUN mkdir -p ${HOME}/bin ${APP_ROOT}/bin && \
