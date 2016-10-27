@@ -72,6 +72,7 @@ export LD_PRELOAD=/usr/lib64/libnss_wrapper.so\n\
 export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
 export NSS_WRAPPER_GROUP=/etc/group\n\
 exec "$@"' > ${APP_ROOT}/bin/entrypoint.sh && \
+    cp ${APP_ROOT}/bin/entrypoint.sh ${APP_ROOT}/.profile && \ 
     chmod ug+x ${APP_ROOT}/bin/entrypoint.sh && \
     chown -R ${USER_UID}:0 ${APP_ROOT} && \
     chmod -R g+rw ${APP_ROOT} && \
