@@ -141,8 +141,8 @@ objects:
             name: tmp
         dnsPolicy: ClusterFirst
         restartPolicy: Always
-        securityContext: {}
-#          runAsUser: 1000100001
+        securityContext:
+          runAsUser: 10001
         serviceAccount: systemd
         serviceAccountName: systemd
         terminationGracePeriodSeconds: 30
@@ -199,7 +199,6 @@ objects:
       app: systemd-httpd
     name: systemd-httpd
   spec:
- #   host: systemd-httpd-systemd.apps.ocp-tohughes.example
     port:
       targetPort: 443-tcp
     tls:
