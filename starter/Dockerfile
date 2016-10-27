@@ -68,10 +68,11 @@ RUN mkdir -p ${HOME} ${APP_ROOT}/bin && \
     find ${APP_ROOT} -type d -exec chmod g+x {} +
 
 ####### Add app-specific needs below. #######
-### if COPYing files that require permission mods, do so before leaving root USER
+### if COPYing or using files that require permission mods, do so before leaving root USER
 RUN chown -R ${USER_UID}:0 /run/httpd /etc/httpd /var/log/httpd && \
-    chmod -R g+rw /run/httpd /etc/httpd /var/log/httpd && \
+    chmod -R g+rw /run/httpd /etc/httpd /var/log && \
     find /etc/httpd -type d -exec chmod g+x {} + && \
+    find /var/log -type d -exec chmod g+x {} + && \
     chmod g+r /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key
 
 ### Containers should NOT run as root as a best practice
