@@ -35,10 +35,12 @@ RUN yum clean all && \
     yum-config-manager --disable \* && \
     yum-config-manager --enable rhel-7-server-rpms && \
     yum-config-manager --enable rhel-7-server-optional-rpms && \
+    yum-config-manager --enable rhel-7-server-ose-3.3-rpms && \
 ### Add additional Red Hat repos
-#    yum-config-manager --enable rhel-7-server-extras-rpms && \
 #    yum-config-manager --enable rhel-server-rhscl-7-rpms && \
     yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs && \
+### nss wrapper functionality for openshift deployments
+    yum -y install --setopt=tsflags=nodocs nss_wrapper gettext && \
 ### Add your package needs to this installation line... 
     yum -y install --setopt=tsflags=nodocs httpd mod_ssl && \
 ### help.md conversion
@@ -57,13 +59,16 @@ RUN yum clean all && \
 ### for the application runtime execution by default.
 ENV APP_ROOT=/opt/app-root \
     USER_NAME=default \
-    USER_UID=1000100001
+    USER_UID=10001
 ENV HOME=${APP_ROOT}/src \
     PATH=$PATH:${APP_ROOT}/bin
 RUN mkdir -p ${HOME} ${APP_ROOT}/bin && \
     useradd -l -u ${USER_UID} -r -g 0 -d ${HOME} -s /sbin/nologin \
             -c "${USER_NAME} application user" ${USER_NAME} && \
-    chown -R ${USER_UID}:0 /opt/app-root
+    sed "s@${USER_NAME}:x:${USER_UID}:0@${USER_NAME}:x:\${USER_ID}:\${GROUP_ID}@g" /etc/passwd > ${APP_ROOT}/passwd.template && \
+    chown -R ${USER_UID}:0 ${APP_ROOT} && \
+    chmod -R g+rw ${APP_ROOT} && \
+    find ${APP_ROOT} -type d -exec chmod g+x {} +
 
 ####### Add app-specific needs below. #######
 ### if COPYing files that require permission mods, do so before leaving root USER
@@ -71,6 +76,8 @@ RUN mkdir -p ${HOME} ${APP_ROOT}/bin && \
 # RUN chmod ug+x ${APP_ROOT}/bin/run.sh && \
 #     chown ${USER_UID}:0 ${APP_ROOT}/bin/run.sh
 RUN chown -R ${USER_UID}:0 /run/httpd /etc/httpd /var/log/httpd && \
+    chmod -R g+rw /run/httpd /etc/httpd /var/log/httpd && \
+    find /etc/httpd -type d -exec chmod g+x {} + && \
     chmod g+r /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key
 
 ### Containers should NOT run as root as a best practice
@@ -86,6 +93,14 @@ RUN sed -i "s/80/8080/g" /etc/httpd/conf/httpd.conf && \
     sed -i "s/Group apache/Group root/g" /etc/httpd/conf/httpd.conf && \
 #    echo "Hello World!" > ${HOME}/index.html && \
     echo $'#!/bin/sh\n\
+### nss_wrapper use-case\n\
+export USER_ID=$(id -u)\n\
+export GROUP_ID=$(id -g)\n\
+envsubst < ${APP_ROOT}/passwd.template > /tmp/passwd\n\
+export LD_PRELOAD=libnss_wrapper.so\n\
+export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
+export NSS_WRAPPER_GROUP=/etc/group\n\
+######\n\
 rm -f /run/httpd/httpd.pid\n\
 exec httpd -DFOREGROUND' > ${APP_ROOT}/bin/run.sh && \
     chmod ug+x ${APP_ROOT}/bin/run.sh
