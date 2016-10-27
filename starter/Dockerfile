@@ -63,6 +63,13 @@ RUN mkdir -p ${APP_HOME} ${APP_ROOT}/bin && \
     useradd -l -u ${USER_UID} -r -g 0 -d ${APP_ROOT} -s /sbin/nologin \
             -c "${USER_NAME} application user" ${USER_NAME} && \
     sed "s@${USER_NAME}:x:${USER_UID}:0@${USER_NAME}:x:\${USER_ID}:\${GROUP_ID}@g" /etc/passwd > ${APP_ROOT}/passwd.template && \
+    echo $'### nss_wrapper\n\
+export USER_ID=$(id -u)\n\
+export GROUP_ID=$(id -g)\n\
+envsubst < ${APP_ROOT}/passwd.template > /tmp/passwd\n\
+export LD_PRELOAD=libnss_wrapper.so\n\
+export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
+export NSS_WRAPPER_GROUP=/etc/group' > ${APP_ROOT}/.profile && \
     chown -R ${USER_UID}:0 ${APP_ROOT} && \
     chmod -R g+rw ${APP_ROOT} && \
     find ${APP_ROOT} -type d -exec chmod g+x {} +
@@ -87,13 +94,6 @@ RUN sed -i "s/80/8080/g" /etc/httpd/conf/httpd.conf && \
     sed -i "s@User apache@User ${USER_NAME}@g" /etc/httpd/conf/httpd.conf && \
     sed -i "s/Group apache/Group root/g" /etc/httpd/conf/httpd.conf && \
 #    echo "Hello World!" > ${APP_HOME}/index.html && \
-    echo $'### nss_wrapper\n\
-export USER_ID=$(id -u)\n\
-export GROUP_ID=$(id -g)\n\
-envsubst < ${APP_ROOT}/passwd.template > /tmp/passwd\n\
-export LD_PRELOAD=libnss_wrapper.so\n\
-export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
-export NSS_WRAPPER_GROUP=/etc/group' > ${APP_ROOT}/.profile && \
     echo $'#!/bin/sh\n\
 # source ${APP_ROOT}/.profile\n\
 rm -f /run/httpd/httpd.pid\n\

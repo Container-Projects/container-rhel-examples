@@ -70,6 +70,13 @@ RUN mkdir -p ${APP_HOME} ${APP_ROOT}/bin && \
     useradd -l -u ${USER_UID} -r -g 0 -d ${APP_ROOT} -s /sbin/nologin \
             -c "${USER_NAME} application user" ${USER_NAME} && \
     sed "s@${USER_NAME}:x:${USER_UID}:0@${USER_NAME}:x:\${USER_ID}:\${GROUP_ID}@g" /etc/passwd > ${APP_ROOT}/passwd.template && \
+    echo $'### nss_wrapper\n\
+export USER_ID=$(id -u)\n\
+export GROUP_ID=$(id -g)\n\
+envsubst < ${APP_ROOT}/passwd.template > /tmp/passwd\n\
+export LD_PRELOAD=libnss_wrapper.so\n\
+export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
+export NSS_WRAPPER_GROUP=/etc/group' > ${APP_ROOT}/.profile && \
     chown -R ${USER_UID}:0 ${APP_ROOT} && \
     chmod -R g+rw ${APP_ROOT} && \
     find ${APP_ROOT} -type d -exec chmod g+x {} +
@@ -78,8 +85,9 @@ RUN mkdir -p ${APP_HOME} ${APP_ROOT}/bin && \
 ENV container docker
 RUN systemctl set-default multi-user.target && \
     echo "${USER_NAME}   ALL= NOPASSWD: /usr/lib/systemd/systemd, /usr/bin/systemctl, /bin/journalctl" >> /etc/sudoers && \
-    echo 'Defaults   env_keep += "HOME"' >> /etc/sudoers && \
     sed -i 's/Defaults    requiretty/# Defaults    requiretty/' /etc/sudoers && \
+    sed -i '/always_set_home/d' /etc/sudoers && \
+    sed -i '/env_reset/d' /etc/sudoers && \
     systemctl enable httpd && \
     # systemctl enable <service> && \
     systemctl mask dev-hugepages.mount sys-fs-fuse-connections.mount \
@@ -95,14 +103,7 @@ RUN systemctl set-default multi-user.target && \
 USER ${USER_UID}
 WORKDIR ${APP_ROOT}
 
-RUN echo $'### nss_wrapper\n\
-export USER_ID=$(id -u)\n\
-export GROUP_ID=$(id -g)\n\
-envsubst < ${APP_ROOT}/passwd.template > /tmp/passwd\n\
-export LD_PRELOAD=libnss_wrapper.so\n\
-export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
-export NSS_WRAPPER_GROUP=/etc/group' > ${APP_ROOT}/.profile && \
-    echo $'#!/bin/sh\n\
+RUN echo $'#!/bin/sh\n\
 source ${APP_ROOT}/.profile\n\
 sudo /usr/lib/systemd/systemd --system --unit=multi-user.target' > ${APP_ROOT}/bin/run.sh && \
     chmod ug+x ${APP_ROOT}/bin/run.sh
