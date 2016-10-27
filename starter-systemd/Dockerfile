@@ -84,10 +84,10 @@ export NSS_WRAPPER_GROUP=/etc/group' > ${APP_ROOT}/.profile && \
 ### these are systemd requirements
 ENV container docker
 RUN systemctl set-default multi-user.target && \
-    echo "${USER_NAME}   ALL= NOPASSWD: /usr/lib/systemd/systemd, /usr/bin/systemctl, /bin/journalctl" >> /etc/sudoers && \
+    echo "${USER_NAME}   ALL= NOPASSWD: /usr/lib/systemd/systemd, /usr/bin/systemctl, /bin/journalctl, /usr/bin/printenv" >> /etc/sudoers && \
     sed -i 's/Defaults    requiretty/# Defaults    requiretty/' /etc/sudoers && \
-    sed -i '/always_set_home/d' /etc/sudoers && \
-    sed -i '/env_reset/d' /etc/sudoers && \
+    sed -i 's/always_set_home/!always_set_home/g' /etc/sudoers && \
+    sed -i 's/env_reset/!env_reset/g' /etc/sudoers && \
     systemctl enable httpd && \
     # systemctl enable <service> && \
     systemctl mask dev-hugepages.mount sys-fs-fuse-connections.mount \
