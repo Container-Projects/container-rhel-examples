@@ -65,7 +65,7 @@ objects:
     source:
       git:
         uri: https://github.com/RHsyseng/container-rhel-examples
-      contextDir: "starter-systemd"
+      contextDir: "systemd-starter"
     strategy: 
       type: "Docker"
     output:
