@@ -100,7 +100,7 @@ envsubst < ${APP_ROOT}/passwd.template > /tmp/passwd\n\
 export LD_PRELOAD=libnss_wrapper.so\n\
 export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
 export NSS_WRAPPER_GROUP=/etc/group\n\
-######\n\
+### nss_wrapper end\n\
 rm -f /run/httpd/httpd.pid\n\
 exec httpd -DFOREGROUND' > ${APP_ROOT}/bin/run.sh && \
     chmod ug+x ${APP_ROOT}/bin/run.sh
