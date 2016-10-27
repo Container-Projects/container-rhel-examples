@@ -95,7 +95,7 @@ export LD_PRELOAD=libnss_wrapper.so\n\
 export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
 export NSS_WRAPPER_GROUP=/etc/group' > ${APP_ROOT}/.profile && \
     echo $'#!/bin/sh\n\
-source ${APP_ROOT}/.profile\n\
+# source ${APP_ROOT}/.profile\n\
 rm -f /run/httpd/httpd.pid\n\
 exec httpd -DFOREGROUND' > ${APP_ROOT}/bin/run.sh && \
     chmod ug+x ${APP_ROOT}/bin/run.sh
