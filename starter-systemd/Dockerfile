@@ -78,6 +78,7 @@ RUN mkdir -p ${APP_HOME} ${APP_ROOT}/bin && \
 ENV container docker
 RUN systemctl set-default multi-user.target && \
     echo "${USER_NAME}   ALL= NOPASSWD: /usr/lib/systemd/systemd, /usr/bin/systemctl, /bin/journalctl" >> /etc/sudoers && \
+    echo 'Defaults   env_keep += "HOME"' >> /etc/sudoers && \
     sed -i 's/Defaults    requiretty/# Defaults    requiretty/' /etc/sudoers && \
     systemctl enable httpd && \
     # systemctl enable <service> && \
