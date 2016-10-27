@@ -64,10 +64,10 @@ RUN yum clean all && \
 ENV APP_ROOT=/opt/app-root \
     USER_NAME=default \
     USER_UID=10001
-ENV HOME=${APP_ROOT}/src \
+ENV APP_HOME=${APP_ROOT}/src \
     PATH=$PATH:${APP_ROOT}/bin
-RUN mkdir -p ${HOME} ${APP_ROOT}/bin && \
-    useradd -l -u ${USER_UID} -r -g 0 -d ${HOME} -s /sbin/nologin \
+RUN mkdir -p ${APP_HOME} ${APP_ROOT}/bin && \
+    useradd -l -u ${USER_UID} -r -g 0 -d ${APP_ROOT} -s /sbin/nologin \
             -c "${USER_NAME} application user" ${USER_NAME} && \
     sed "s@${USER_NAME}:x:${USER_UID}:0@${USER_NAME}:x:\${USER_ID}:\${GROUP_ID}@g" /etc/passwd > ${APP_ROOT}/passwd.template && \
     chown -R ${USER_UID}:0 ${APP_ROOT} && \
@@ -92,17 +92,17 @@ RUN systemctl set-default multi-user.target && \
 
 ### Containers should NOT run as root as a best practice
 USER ${USER_UID}
-WORKDIR ${HOME}
+WORKDIR ${APP_ROOT}
 
-RUN echo $'#!/bin/sh\n\
-### nss_wrapper use-case\n\
+RUN echo $'### nss_wrapper\n\
 export USER_ID=$(id -u)\n\
 export GROUP_ID=$(id -g)\n\
 envsubst < ${APP_ROOT}/passwd.template > /tmp/passwd\n\
 export LD_PRELOAD=libnss_wrapper.so\n\
 export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
-export NSS_WRAPPER_GROUP=/etc/group\n\
-### nss_wrapper end\n\
+export NSS_WRAPPER_GROUP=/etc/group' > ${APP_ROOT}/.profile && \
+    echo $'#!/bin/sh\n\
+source ${APP_ROOT}/.profile\n\
 sudo /usr/lib/systemd/systemd --system --unit=multi-user.target' > ${APP_ROOT}/bin/run.sh && \
     chmod ug+x ${APP_ROOT}/bin/run.sh
 
