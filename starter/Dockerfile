@@ -35,11 +35,12 @@ RUN yum clean all && \
     yum-config-manager --disable \* && \
     yum-config-manager --enable rhel-7-server-rpms && \
     yum-config-manager --enable rhel-7-server-optional-rpms && \
+### repo only necessary for nss wrapper functionality w/ openshift deployments
     yum-config-manager --enable rhel-7-server-ose-3.3-rpms && \
 ### Add additional Red Hat repos
 #    yum-config-manager --enable rhel-server-rhscl-7-rpms && \
     yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs && \
-### nss wrapper functionality for openshift deployments
+### nss wrapper packages for openshift deployments
     yum -y install --setopt=tsflags=nodocs nss_wrapper gettext && \
 ### Add your package needs to this installation line... 
     yum -y install --setopt=tsflags=nodocs httpd mod_ssl && \

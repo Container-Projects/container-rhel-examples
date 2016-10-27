@@ -38,11 +38,14 @@ RUN yum clean all && \
     yum-config-manager --disable \* && \
     yum-config-manager --enable rhel-7-server-rpms && \
     yum-config-manager --enable rhel-7-server-optional-rpms && \
+### repo only necessary for nss wrapper functionality w/ openshift deployments
+    yum-config-manager --enable rhel-7-server-ose-3.3-rpms && \
 ### Add additional Red Hat repos
-#    yum-config-manager --enable rhel-7-server-extras-rpms && \
 #    yum-config-manager --enable rhel-server-rhscl-7-rpms && \
     yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs && \
-### Add your package needs to this installation line... 
+### nss wrapper packages for openshift deployments
+    yum -y install --setopt=tsflags=nodocs nss_wrapper gettext && \
+### Add your package needs to this installation line... sudo required for systemd non-root
     yum -y install --setopt=tsflags=nodocs sudo httpd mod_ssl && \
 ### help.md conversion
     yum -y install golang-github-cpuguy83-go-md2man && go-md2man -in help.md -out help.1 && \
@@ -60,13 +63,16 @@ RUN yum clean all && \
 ### for the application runtime execution by default.
 ENV APP_ROOT=/opt/app-root \
     USER_NAME=default \
-    USER_UID=1000100001
+    USER_UID=10001
 ENV HOME=${APP_ROOT}/src \
     PATH=$PATH:${APP_ROOT}/bin
 RUN mkdir -p ${HOME} ${APP_ROOT}/bin && \
     useradd -l -u ${USER_UID} -r -g 0 -d ${HOME} -s /sbin/nologin \
             -c "${USER_NAME} application user" ${USER_NAME} && \
-    chown -R ${USER_UID}:0 /opt/app-root
+    sed "s@${USER_NAME}:x:${USER_UID}:0@${USER_NAME}:x:\${USER_ID}:\${GROUP_ID}@g" /etc/passwd > ${APP_ROOT}/passwd.template && \
+    chown -R ${USER_UID}:0 ${APP_ROOT} && \
+    chmod -R g+rw ${APP_ROOT} && \
+    find ${APP_ROOT} -type d -exec chmod g+x {} +
 
 ### these are systemd requirements
 ENV container docker
@@ -88,8 +94,17 @@ RUN systemctl set-default multi-user.target && \
 USER ${USER_UID}
 WORKDIR ${HOME}
 
-# RUN echo $'#!/bin/sh\n\
-# tail -f /dev/null' > ${APP_ROOT}/bin/run.sh && \
-#     chmod ug+x ${APP_ROOT}/bin/run.sh
+RUN echo $'#!/bin/sh\n\
+### nss_wrapper use-case\n\
+export USER_ID=$(id -u)\n\
+export GROUP_ID=$(id -g)\n\
+envsubst < ${APP_ROOT}/passwd.template > /tmp/passwd\n\
+export LD_PRELOAD=libnss_wrapper.so\n\
+export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
+export NSS_WRAPPER_GROUP=/etc/group\n\
+### nss_wrapper end\n\
+sudo /usr/lib/systemd/systemd --system --unit=multi-user.target' > ${APP_ROOT}/bin/run.sh && \
+    chmod ug+x ${APP_ROOT}/bin/run.sh
+
 EXPOSE 80 443
-CMD sudo /usr/lib/systemd/systemd --system --unit=multi-user.target
+CMD run.sh
