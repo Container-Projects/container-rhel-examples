@@ -57,10 +57,10 @@ RUN yum clean all && \
 ENV APP_ROOT=/opt/app-root \
     USER_NAME=default \
     USER_UID=10001
-ENV HOME=${APP_ROOT}/src \
+ENV APP_HOME=${APP_ROOT}/src \
     PATH=$PATH:${APP_ROOT}/bin
-RUN mkdir -p ${HOME} ${APP_ROOT}/bin && \
-    useradd -l -u ${USER_UID} -r -g 0 -d ${HOME} -s /sbin/nologin \
+RUN mkdir -p ${APP_HOME} ${APP_ROOT}/bin && \
+    useradd -l -u ${USER_UID} -r -g 0 -m -s /sbin/nologin \
             -c "${USER_NAME} application user" ${USER_NAME} && \
     sed "s@${USER_NAME}:x:${USER_UID}:0@${USER_NAME}:x:\${USER_ID}:\${GROUP_ID}@g" /etc/passwd > ${APP_ROOT}/passwd.template && \
     chown -R ${USER_UID}:0 ${APP_ROOT} && \
@@ -77,25 +77,25 @@ RUN chown -R ${USER_UID}:0 /run/httpd /etc/httpd /var/log/httpd && \
 
 ### Containers should NOT run as root as a best practice
 USER ${USER_UID}
-WORKDIR ${HOME}
+WORKDIR ${APP_HOME}
 
 RUN sed -i "s/80/8080/g" /etc/httpd/conf/httpd.conf && \
     sed -i "s/443/8443/g" /etc/httpd/conf.d/ssl.conf && \
-    sed -i "s@\/var\/www\/html@${HOME}@g" /etc/httpd/conf/httpd.conf && \
-    sed -i "s@\/var\/www\/html@${HOME}@g" /etc/httpd/conf.d/ssl.conf && \
+    sed -i "s@\/var\/www\/html@${APP_HOME}@g" /etc/httpd/conf/httpd.conf && \
+    sed -i "s@\/var\/www\/html@${APP_HOME}@g" /etc/httpd/conf.d/ssl.conf && \
     sed -i "s/#DocumentRoot/DocumentRoot/g" /etc/httpd/conf.d/ssl.conf && \
     sed -i "s@User apache@User ${USER_NAME}@g" /etc/httpd/conf/httpd.conf && \
     sed -i "s/Group apache/Group root/g" /etc/httpd/conf/httpd.conf && \
-#    echo "Hello World!" > ${HOME}/index.html && \
-    echo $'#!/bin/sh\n\
-### nss_wrapper use-case\n\
+#    echo "Hello World!" > ${APP_HOME}/index.html && \
+    echo $'### nss_wrapper\n\
 export USER_ID=$(id -u)\n\
 export GROUP_ID=$(id -g)\n\
 envsubst < ${APP_ROOT}/passwd.template > /tmp/passwd\n\
 export LD_PRELOAD=libnss_wrapper.so\n\
 export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
-export NSS_WRAPPER_GROUP=/etc/group\n\
-### nss_wrapper end\n\
+export NSS_WRAPPER_GROUP=/etc/group' > ${HOME}/.profile && \
+    echo $'#!/bin/sh\n\
+source ${HOME}/.profile\n\
 rm -f /run/httpd/httpd.pid\n\
 exec httpd -DFOREGROUND' > ${APP_ROOT}/bin/run.sh && \
     chmod ug+x ${APP_ROOT}/bin/run.sh
