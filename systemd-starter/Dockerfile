@@ -3,8 +3,6 @@ FROM registry.access.redhat.com/rhel7
 MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 
 ### Atomic Labels
-### The UNINSTALL label by DEFAULT will attempt to delete a container (rm) and image (rmi) if the container NAME
-### is the same as the actual IMAGE. NAME is set via -n flag to ALL atomic commands (install,run,stop,uninstall).
 ### https://github.com/projectatomic/ContainerApplicationGenericLabels
 LABEL Name="acme/starter" \
       Vendor="Acme Corp" \
@@ -29,8 +27,7 @@ LABEL io.k8s.description="Starter App will do ....." \
       io.openshift.expose-services="8080:http,8443:https" \
       io.openshift.tags="Acme,starter,starterapp"
 
-### Atomic Help File
-### Write in Markdown, it will be converted to man format at build time.
+### Atomic Help File - Write in Markdown, it will be converted to man format at build time.
 ### https://github.com/projectatomic/container-best-practices/blob/master/creating/help.adoc
 COPY help.md /
 
@@ -38,13 +35,11 @@ RUN yum clean all && \
     yum-config-manager --disable \* && \
     yum-config-manager --enable rhel-7-server-rpms && \
     yum-config-manager --enable rhel-7-server-optional-rpms && \
-### repo only necessary for nss wrapper functionality w/ openshift deployments
-    yum-config-manager --enable rhel-7-server-ose-3.3-rpms && \
 ### Add additional Red Hat repos
 #    yum-config-manager --enable rhel-server-rhscl-7-rpms && \
     yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs && \
-### nss wrapper packages for openshift deployments
-    yum -y install --setopt=tsflags=nodocs nss_wrapper gettext && \
+### NSS_WRAPPER for arbitrary uid recognition
+#    yum-config-manager --enable rhel-7-server-ose-3.3-rpms && yum -y install --setopt=tsflags=nodocs nss_wrapper gettext && \
 ### Add your package needs to this installation line... sudo required for systemd non-root
     yum -y install --setopt=tsflags=nodocs sudo httpd mod_ssl && \
 ### help.md conversion
@@ -59,8 +54,7 @@ RUN yum clean all && \
 #    yum-config-manager --disable epel && \
     yum clean all
 
-### Setup the user that is used for the build execution and
-### for the application runtime execution by default.
+### Setup the user that is used for the build execution and for the application runtime execution by default.
 ENV APP_ROOT=/opt/app-root \
     USER_NAME=default \
     USER_UID=10001
@@ -69,17 +63,19 @@ ENV APP_HOME=${APP_ROOT}/src \
 RUN mkdir -p ${APP_HOME} ${APP_ROOT}/bin && \
     useradd -l -u ${USER_UID} -r -g 0 -d ${APP_ROOT} -s /sbin/nologin \
             -c "${USER_NAME} application user" ${USER_NAME} && \
-    sed "s@${USER_NAME}:x:${USER_UID}:0@${USER_NAME}:x:\${USER_ID}:\${GROUP_ID}@g" /etc/passwd > ${APP_ROOT}/passwd.template && \
-    echo $'#!/bin/sh\n\
-### nss_wrapper\n\
-export USER_ID=$(id -u)\n\
-export GROUP_ID=$(id -g)\n\
-envsubst < ${APP_ROOT}/passwd.template > /tmp/passwd\n\
-export LD_PRELOAD=/usr/lib64/libnss_wrapper.so\n\
-export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
-export NSS_WRAPPER_GROUP=/etc/group\n\
-exec "$@"' > ${APP_ROOT}/bin/entrypoint.sh && \
-    chmod ug+x ${APP_ROOT}/bin/entrypoint.sh && \
+### NSS_WRAPPER for arbitrary uid recognition
+#    sed "s@${USER_NAME}:x:${USER_UID}:0@${USER_NAME}:x:\${USER_ID}:\${GROUP_ID}@g" /etc/passwd > ${APP_ROOT}/passwd.template && \
+#    echo $'#!/bin/sh\n\
+#### nss_wrapper\n\
+#export USER_ID=$(id -u)\n\
+#export GROUP_ID=$(id -g)\n\
+#envsubst < ${APP_ROOT}/passwd.template > /tmp/passwd\n\
+#export LD_PRELOAD=/usr/lib64/libnss_wrapper.so\n\
+#export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
+#export NSS_WRAPPER_GROUP=/etc/group\n\
+#exec "$@"' > ${APP_ROOT}/bin/nss_entrypoint.sh && \
+#    cp ${APP_ROOT}/bin/nss_entrypoint.sh ${APP_ROOT}/.profile && \ 
+#    chmod ug+x ${APP_ROOT}/bin/nss_entrypoint.sh && \
     chown -R ${USER_UID}:0 ${APP_ROOT} && \
     chmod -R g+rw ${APP_ROOT} && \
     find ${APP_ROOT} -type d -exec chmod g+x {} +
@@ -87,10 +83,8 @@ exec "$@"' > ${APP_ROOT}/bin/entrypoint.sh && \
 ### these are systemd requirements
 ENV container docker
 RUN systemctl set-default multi-user.target && \
-    echo "${USER_NAME}   ALL= NOPASSWD: /usr/lib/systemd/systemd, /usr/bin/systemctl, /bin/journalctl, /usr/bin/printenv" >> /etc/sudoers && \
+    echo "${USER_NAME}   ALL= NOPASSWD: /usr/lib/systemd/systemd, /usr/bin/systemctl, /bin/journalctl" >> /etc/sudoers && \
     sed -i 's/Defaults    requiretty/# Defaults    requiretty/' /etc/sudoers && \
-    sed -i 's/always_set_home/!always_set_home/g' /etc/sudoers && \
-    sed -i 's/env_reset/!env_reset/g' /etc/sudoers && \
     systemctl enable httpd && \
     # systemctl enable <service> && \
     systemctl mask dev-hugepages.mount sys-fs-fuse-connections.mount \
@@ -110,6 +104,7 @@ WORKDIR ${APP_ROOT}
 #sudo /usr/lib/systemd/systemd --system --unit=multi-user.target' > ${APP_ROOT}/bin/run.sh && \
 #    chmod ug+x ${APP_ROOT}/bin/run.sh
 
+### NSS_WRAPPER for arbitrary uid recognition
+#ENTRYPOINT [ "nss_entrypoint.sh" ]
 EXPOSE 80 443
-ENTRYPOINT [ "entrypoint.sh" ]
 CMD sudo /usr/lib/systemd/systemd --system --unit=multi-user.target
