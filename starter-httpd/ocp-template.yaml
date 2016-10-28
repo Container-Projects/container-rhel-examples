@@ -66,10 +66,7 @@ objects:
           deploymentconfig: starter-httpd
       spec:
         containers:
-        - env:
-          - name: HOME
-            value: /opt/app-root
-          image: 172.30.93.229:5000/starter-httpd/starter-httpd@sha256:f5f80e5c582c0e5ed010a9057ce5c6458c31f4e28c652d0e1f9397cd543c2b31
+        - image: 172.30.93.229:5000/starter-httpd/starter-httpd@sha256:f5f80e5c582c0e5ed010a9057ce5c6458c31f4e28c652d0e1f9397cd543c2b31
           imagePullPolicy: Always
           name: starter-httpd
           ports:

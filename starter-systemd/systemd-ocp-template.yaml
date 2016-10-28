@@ -111,10 +111,7 @@ objects:
           deploymentconfig: systemd-httpd
       spec:
         containers:
-        - env:
-          - name: HOME
-            value: /opt/app-root
-          image: 172.30.93.229:5000/systemd/systemd-httpd@sha256:51a604c2e655a4a7a533fe687ae14bb164c7a141c9bcd745f5c7e1bf316b9fb7
+        - image: 172.30.93.229:5000/systemd/systemd-httpd@sha256:51a604c2e655a4a7a533fe687ae14bb164c7a141c9bcd745f5c7e1bf316b9fb7
           imagePullPolicy: Always
           name: systemd-httpd
           ports:
