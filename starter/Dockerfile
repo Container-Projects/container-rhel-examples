@@ -13,15 +13,14 @@ LABEL Name="acme/starter" \
       summary="Acme Corp's Starter App" \
       description="Starter App will do ....." \
       RUN='docker run -tdi --name ${NAME} \
-      -p 8080:8080 \
-      -p 8443:8443 \
+      --tmpfs /tmp \
       ${IMAGE}' \
       STOP='docker stop ${NAME}'
 
 ### OpenShift labels
 LABEL io.k8s.description="Starter App will do ....." \
       io.k8s.display-name="Starter App" \
-      io.openshift.expose-services="8080:8080,8443:8443" \
+      io.openshift.expose-services="" \
       io.openshift.tags="Acme,starter,starterapp"
 
 ### Atomic Help File - Write in Markdown, it will be converted to man format at build time.
@@ -35,11 +34,9 @@ RUN yum clean all && \
 ### Add additional Red Hat repos
 #    yum-config-manager --enable rhel-server-rhscl-7-rpms && \
     yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs && \
-### NSS_WRAPPER for arbitrary uid recognition
-#    yum-config-manager --enable rhel-7-server-ose-3.3-rpms && yum -y install --setopt=tsflags=nodocs nss_wrapper gettext && \
 ### Add your package needs to this installation line
-    yum -y install --setopt=tsflags=nodocs httpd mod_ssl && \
-### help.md conversion
+#    yum -y install --setopt=tsflags=nodocs httpd && \
+### help markdown to man conversion
     yum -y install golang-github-cpuguy83-go-md2man && go-md2man -in help.md -out help.1 && \
     yum -y remove golang-github-cpuguy83-go-md2man && rm -f help.md && \
 ### EPEL packages can be installed if necessary but, install non-epel packages before
@@ -60,49 +57,21 @@ ENV APP_HOME=${APP_ROOT}/src \
 RUN mkdir -p ${APP_HOME} ${APP_ROOT}/bin && \
     useradd -l -u ${USER_UID} -r -g 0 -d ${APP_ROOT} -s /sbin/nologin \
             -c "${USER_NAME} application user" ${USER_NAME} && \
-### NSS_WRAPPER for arbitrary uid recognition
-#    sed "s@${USER_NAME}:x:${USER_UID}:0@${USER_NAME}:x:\${USER_ID}:\${GROUP_ID}@g" /etc/passwd > ${APP_ROOT}/passwd.template && \
-#    echo $'#!/bin/sh\n\
-#### nss_wrapper\n\
-#export USER_ID=$(id -u)\n\
-#export GROUP_ID=$(id -g)\n\
-#envsubst < ${APP_ROOT}/passwd.template > /tmp/passwd\n\
-#export LD_PRELOAD=/usr/lib64/libnss_wrapper.so\n\
-#export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
-#export NSS_WRAPPER_GROUP=/etc/group\n\
-#exec "$@"' > ${APP_ROOT}/bin/nss_entrypoint.sh && \
-#    cp ${APP_ROOT}/bin/nss_entrypoint.sh ${APP_ROOT}/.profile && \ 
-#    chmod ug+x ${APP_ROOT}/bin/nss_entrypoint.sh && \
     chown -R ${USER_UID}:0 ${APP_ROOT} && \
     chmod -R g+rw ${APP_ROOT} && \
     find ${APP_ROOT} -type d -exec chmod g+x {} +
 
 ####### Add app-specific needs below. #######
 ### if COPYing or using files that require permission mods, do so before leaving root USER
-RUN chown -R ${USER_UID}:0 /run/httpd /etc/httpd /var/log/httpd && \
-    chmod -R g+rw /run/httpd /etc/httpd /var/log && \
-    find /etc/httpd -type d -exec chmod g+x {} + && \
-    find /var/log -type d -exec chmod g+x {} + && \
-    chmod g+r /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key
+#RUN chown -R ${USER_UID}:0 /run/httpd /etc/httpd /var/log/httpd && \
+#    chmod -R g+rw /run/httpd /etc/httpd /var/log
 
 ### Containers should NOT run as root as a best practice
 USER ${USER_UID}
 WORKDIR ${APP_ROOT}
 
-RUN sed -i "s/80/8080/g" /etc/httpd/conf/httpd.conf && \
-    sed -i "s/443/8443/g" /etc/httpd/conf.d/ssl.conf && \
-    sed -i "s@\/var\/www\/html@${APP_HOME}@g" /etc/httpd/conf/httpd.conf && \
-    sed -i "s@\/var\/www\/html@${APP_HOME}@g" /etc/httpd/conf.d/ssl.conf && \
-    sed -i "s/#DocumentRoot/DocumentRoot/g" /etc/httpd/conf.d/ssl.conf && \
-    sed -i "s@User apache@User ${USER_NAME}@g" /etc/httpd/conf/httpd.conf && \
-    sed -i "s/Group apache/Group root/g" /etc/httpd/conf/httpd.conf && \
-#    echo "Hello World!" > ${APP_HOME}/index.html && \
-    echo $'#!/bin/sh\n\
-rm -f /run/httpd/httpd.pid\n\
-exec httpd -DFOREGROUND' > ${APP_ROOT}/bin/run.sh && \
+RUN echo $'#!/bin/sh\n\
+tail -f /dev/null' > ${APP_ROOT}/bin/run.sh && \
     chmod ug+x ${APP_ROOT}/bin/run.sh
 
-### NSS_WRAPPER for arbitrary uid recognition
-#ENTRYPOINT [ "nss_entrypoint.sh" ]
-EXPOSE 8080 8443
 CMD run.sh
