@@ -10,7 +10,7 @@ objects:
     name: systemd
 - apiVersion: v1
   kind: SecurityContextConstraints
-  allowHostDirVolumePlugin: false
+  allowHostDirVolumePlugin: true
   allowHostIPC: false
   allowHostNetwork: false
   allowHostPID: false
@@ -129,6 +129,13 @@ objects:
             timeoutSeconds: 1
           resources: {}
           terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /sys/fs/cgroup
+            name: cgroup
+          - mountPath: /run
+            name: run
+          - mountPath: /tmp
+            name: tmp
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         securityContext:
