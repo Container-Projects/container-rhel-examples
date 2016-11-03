@@ -88,7 +88,8 @@ RUN systemctl set-default multi-user.target && \
     systemctl enable httpd && \
     # systemctl enable <service> && \
     systemctl mask dev-hugepages.mount sys-fs-fuse-connections.mount \
-            systemd-journal-flush.service systemd-update-utmp-runlevel.service systemd-update-utmp.service
+            systemd-journal-flush.service systemd-update-utmp-runlevel.service systemd-update-utmp.service && \
+chmod 6755 /usr/lib/systemd/systemd
     
 ####### Add app-specific needs below. #######
 ### if COPYing files that require permission mods, do so before leaving root USER
@@ -107,4 +108,4 @@ WORKDIR ${APP_ROOT}
 ### NSS_WRAPPER for arbitrary uid recognition
 #ENTRYPOINT [ "nss_entrypoint.sh" ]
 EXPOSE 80 443
-CMD sudo /usr/lib/systemd/systemd --system --unit=multi-user.target
+CMD ["/sbin/init","--system","--unit=multi-user.target"]
