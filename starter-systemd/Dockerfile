@@ -13,9 +13,7 @@ LABEL Name="acme/starter-systemd" \
       summary="Acme Corp's Starter App" \
       description="Starter App will do ....." \
       RUN='docker run -tdi --name ${NAME} \
-      -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
-      --tmpfs /run \
-      --tmpfs /tmp \
+      --stop-signal=RTMIN+3 \
       -p 8080:80 \
       -p 8443:443 \
       ${IMAGE}' \
@@ -38,10 +36,8 @@ RUN yum clean all && \
 ### Add additional Red Hat repos
 #    yum-config-manager --enable rhel-server-rhscl-7-rpms && \
     yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs && \
-### NSS_WRAPPER for arbitrary uid recognition
-#    yum-config-manager --enable rhel-7-server-ose-3.3-rpms && yum -y install --setopt=tsflags=nodocs nss_wrapper gettext && \
-### Add your package needs to this installation line... sudo required for systemd non-root
-    yum -y install --setopt=tsflags=nodocs sudo httpd mod_ssl && \
+### Add your package needs to this installation line.
+    yum -y install --setopt=tsflags=nodocs httpd mod_ssl && \
 ### help.md conversion
     yum -y install golang-github-cpuguy83-go-md2man && go-md2man -in help.md -out help.1 && \
     yum -y remove golang-github-cpuguy83-go-md2man && rm -f help.md && \
@@ -63,48 +59,22 @@ ENV APP_HOME=${APP_ROOT}/src \
 RUN mkdir -p ${APP_HOME} ${APP_ROOT}/bin && \
     useradd -l -u ${USER_UID} -r -g 0 -d ${APP_ROOT} -s /sbin/nologin \
             -c "${USER_NAME} application user" ${USER_NAME} && \
-### NSS_WRAPPER for arbitrary uid recognition
-#    sed "s@${USER_NAME}:x:${USER_UID}:0@${USER_NAME}:x:\${USER_ID}:\${GROUP_ID}@g" /etc/passwd > ${APP_ROOT}/passwd.template && \
-#    echo $'#!/bin/sh\n\
-#### nss_wrapper\n\
-#export USER_ID=$(id -u)\n\
-#export GROUP_ID=$(id -g)\n\
-#envsubst < ${APP_ROOT}/passwd.template > /tmp/passwd\n\
-#export LD_PRELOAD=/usr/lib64/libnss_wrapper.so\n\
-#export NSS_WRAPPER_PASSWD=/tmp/passwd\n\
-#export NSS_WRAPPER_GROUP=/etc/group\n\
-#exec "$@"' > ${APP_ROOT}/bin/nss_entrypoint.sh && \
-#    cp ${APP_ROOT}/bin/nss_entrypoint.sh ${APP_ROOT}/.profile && \ 
-#    chmod ug+x ${APP_ROOT}/bin/nss_entrypoint.sh && \
     chown -R ${USER_UID}:0 ${APP_ROOT} && \
     chmod -R g+rw ${APP_ROOT} && \
     find ${APP_ROOT} -type d -exec chmod g+x {} +
 
+####### Add app-specific needs below. #######
 ### these are systemd requirements
 ENV container docker
 RUN systemctl set-default multi-user.target && \
-    echo "${USER_NAME}   ALL= NOPASSWD: /usr/lib/systemd/systemd, /usr/bin/systemctl, /bin/journalctl" >> /etc/sudoers && \
-    sed -i 's/Defaults    requiretty/# Defaults    requiretty/' /etc/sudoers && \
     systemctl enable httpd && \
     # systemctl enable <service> && \
-    systemctl mask dev-hugepages.mount sys-fs-fuse-connections.mount \
-            systemd-journal-flush.service systemd-update-utmp-runlevel.service systemd-update-utmp.service
-    
-####### Add app-specific needs below. #######
-### if COPYing files that require permission mods, do so before leaving root USER
-#COPY run.sh ${APP_ROOT}/bin/
-#RUN chmod ug+x ${APP_ROOT}/bin/run.sh && \
-#     chown ${USER_UID}:0 ${APP_ROOT}/bin/run.sh
+    chmod 6755 /usr/lib/systemd/systemd && \
+    systemctl mask sys-fs-fuse-connections.mount systemd-initctl.socket
 
 ### Containers should NOT run as root as a best practice
 USER ${USER_UID}
 WORKDIR ${APP_ROOT}
 
-#RUN echo $'#!/bin/sh\n\
-#sudo /usr/lib/systemd/systemd --system --unit=multi-user.target' > ${APP_ROOT}/bin/run.sh && \
-#    chmod ug+x ${APP_ROOT}/bin/run.sh
-
-### NSS_WRAPPER for arbitrary uid recognition
-#ENTRYPOINT [ "nss_entrypoint.sh" ]
 EXPOSE 80 443
-CMD sudo /usr/lib/systemd/systemd --system --unit=multi-user.target
+CMD [ "/sbin/init" ]

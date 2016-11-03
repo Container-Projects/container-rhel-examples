@@ -53,9 +53,10 @@ That atomic command runs the docker command set in this label:
 `RUN=`
 
   LABEL RUN='docker run -tdi --name ${NAME} \
-        -p 8080:8080 \
-        -p 8443:8443 \
-        $IMAGE' \
+        --stop-signal=RTMIN+3 \
+        -p 8080:80 \
+        -p 8443:443 \
+        ${IMAGE}' \
 
   The contents of the RUN label tells an `atomic run acme/starter-systemd` command to open ports 8080/8443 & set the name of the container.
 

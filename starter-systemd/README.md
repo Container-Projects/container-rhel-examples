@@ -24,4 +24,9 @@ http://developers.redhat.com/products/cdk/overview/
 Once your host is setup you can begin your Dockerfile with this example. This will ensure you're using the supported/secure base image instead of one you might find on docker's public hub, and many other benefits discussed in the best practices link above.
 ```shell
 $ docker build --pull -t acme/starter-systemd -t acme/starter-systemd:v3.2 .
+$ atomic run acme/starter-systemd
+# OR
+# $ docker run -tdi --stop-signal=RTMIN+3 -v /sys/fs/cgroup:/sys/fs/cgroup:ro --tmpfs /run --tmpfs /tmp acme/starter-systemd
+$ docker exec starter-systemd systemctl status
+$ docker exec starter-systemd journalctl
 ```
