@@ -75,7 +75,10 @@ RUN systemctl set-default multi-user.target && \
     systemctl enable httpd && \
     # systemctl enable <service> && \
     chmod 6755 /usr/lib/systemd/systemd && \
-    systemctl mask sys-fs-fuse-connections.mount systemd-initctl.socket
+    systemctl mask  systemd-login.service dev-mqueue.mount dev-hugepages.mount \
+                    systemd-remount-fs.service sys-kernel-config.mount \
+                    sys-kernel-debug.mount sys-fs-fuse-connections.mount \
+                    systemd-initctl.socket display-manager.service graphical.target
 
 ### Containers should NOT run as root as a best practice
 USER ${USER_UID}
