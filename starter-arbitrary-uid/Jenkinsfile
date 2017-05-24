@@ -1,0 +1,26 @@
+@Library('Utils')
+import com.redhat.connect.ContainerZone
+import com.redhat.Utils
+
+node {
+
+    dockerCfg = getDockerCfgSecret {
+        secretName = "container-zone"
+    }
+
+    def dockerCfgPassword = new Utils().getDockerCfgPassword(dockerCfg)
+
+    stage('Start OpenShift Build') {
+        openshiftBuild(buildConfig: "starter-arbitrary-uid-ex-reg", showBuildLogs: 'true')
+    }
+    dockerDigest = getDockerDigest(dockerCfgPassword) {
+        openShiftUri = "insecure://api.rhc4tp.openshift.com"
+        openShiftProject = "p17633880910e488f5949aab3ad76cd4317542a7a06"
+        imageName = "starter-arbitrary-uid"
+        imageTag = "latest"
+    }
+    containerZoneScan(dockerCfg, dockerDigest)
+}
+
+
+
