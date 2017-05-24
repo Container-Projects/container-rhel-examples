@@ -1,6 +1,6 @@
 @Library('Utils')
-import com.redhat.connect.ContainerZone
-import com.redhat.Utils
+import com.redhat.*
+import com.redhat.connect.*
 
 node {
 
