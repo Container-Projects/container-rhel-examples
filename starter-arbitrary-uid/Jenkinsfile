@@ -17,7 +17,7 @@ node {
         openShiftUri = "insecure://api.rhc4tp.openshift.com"
         openShiftProject = "p17633880910e488f5949aab3ad76cd4317542a7a06"
         imageName = "starter-arbitrary-uid"
-        imageTag = "latest"
+        imageTag = "1.0"
     }
     containerZoneScan(dockerCfg, dockerDigest)
 }
