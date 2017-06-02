@@ -4,7 +4,7 @@ import com.redhat.*
 node {
 
     createDockerCfgJenkinsCredential {
-        secretName = "ContainerZone"
+        secretName = "containerzone"
     }
 
     stage('Start OpenShift Build') {
@@ -12,7 +12,7 @@ node {
     }
 
     containerZoneScan {
-        credentialsId = "ContainerZone"
+        credentialsId = "containerzone"
         openShiftUri = "insecure://api.rhc4tp.openshift.com"
         imageName = "starter-arbitrary-uid"
         imageTag = "1.0"
