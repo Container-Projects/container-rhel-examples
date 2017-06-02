@@ -1,26 +1,20 @@
 @Library('Utils')
 import com.redhat.*
-import com.redhat.connect.*
 
 node {
 
-    dockerCfg = getDockerCfgSecret {
-        secretName = "container-zone"
+    createDockerCfgJenkinsCredential {
+        secretName = "ContainerZone"
     }
-
-    def dockerCfgPassword = new Utils().getDockerCfgPassword(dockerCfg)
 
     stage('Start OpenShift Build') {
         openshiftBuild(buildConfig: "starter-arbitrary-uid-ex-reg", showBuildLogs: 'true')
     }
-    dockerDigest = getDockerDigest(dockerCfgPassword) {
+
+    containerZoneScan {
+        credentialsId = "ContainerZone"
         openShiftUri = "insecure://api.rhc4tp.openshift.com"
-        openShiftProject = "p17633880910e488f5949aab3ad76cd4317542a7a06"
         imageName = "starter-arbitrary-uid"
         imageTag = "1.0"
     }
-    containerZoneScan(dockerCfg, dockerDigest)
 }
-
-
-
