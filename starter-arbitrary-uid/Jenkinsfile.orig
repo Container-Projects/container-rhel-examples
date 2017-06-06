@@ -14,7 +14,7 @@ node {
     containerZoneScan {
         credentialsId = "containerzone"
         openShiftUri = "insecure://api.rhc4tp.openshift.com"
-        imageName = "glen-test-image"
+        imageName = "starter-arbitrary-uid"
         imageTag = "1.0"
     }
 }
