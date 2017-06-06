@@ -8,7 +8,7 @@ node {
     }
 
     stage('Start OpenShift Build') {
-        openshiftBuild(buildConfig: "starter-arbitrary-uid-ex-reg", showBuildLogs: 'true')
+        openshiftBuild(buildConfig: "glen-test-image-ex-reg", showBuildLogs: 'true')
     }
 
     containerZoneScan {

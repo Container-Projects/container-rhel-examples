@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: starter-arbitrary-uid
+  name: glen-test-image
 objects:
 - apiVersion: v1
   kind: DeploymentConfig
@@ -11,13 +11,13 @@ objects:
     creationTimestamp: null
     generation: 7
     labels:
-      app: starter-arbitrary-uid
-    name: starter-arbitrary-uid
+      app: glen-test-image
+    name: glen-test-image
   spec:
     replicas: 1
     selector:
-      app: starter-arbitrary-uid
-      deploymentconfig: starter-arbitrary-uid
+      app: glen-test-image
+      deploymentconfig: glen-test-image
     strategy:
       resources: {}
       rollingParams:
@@ -33,13 +33,13 @@ objects:
           openshift.io/generated-by: OpenShiftWebConsole
         creationTimestamp: null
         labels:
-          app: starter-arbitrary-uid
-          deploymentconfig: starter-arbitrary-uid
+          app: glen-test-image
+          deploymentconfig: glen-test-image
       spec:
         containers:
-        - image: starter-arbitrary-uid
+        - image: glen-test-image
           imagePullPolicy: Always
-          name: starter-arbitrary-uid
+          name: glen-test-image
           resources: {}
           terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
@@ -52,35 +52,35 @@ objects:
     - imageChangeParams:
         automatic: true
         containerNames:
-        - starter-arbitrary-uid
+        - glen-test-image
         from:
           kind: ImageStreamTag
-          name: starter-arbitrary-uid:latest
+          name: glen-test-image:latest
       type: ImageChange
 - apiVersion: v1
   kind: ImageStream
   metadata:
     labels:
-      app: starter-arbitrary-uid
-    name: starter-arbitrary-uid
+      app: glen-test-image
+    name: glen-test-image
   spec:
     tags:
-    - name: "starter-arbitrary-uid"
+    - name: "glen-test-image"
 - apiVersion: "v1"
   kind: "BuildConfig"
   metadata:
-    name: "starter-arbitrary-uid"
+    name: "glen-test-image"
   spec:
     source:
       git:
         uri: https://github.com/RHsyseng/container-rhel-examples
-      contextDir: "starter-arbitrary-uid"
+      contextDir: "glen-test-image"
     strategy: 
       type: "Docker"
     output:
       to:
         kind: "ImageStreamTag"
-        name: "starter-arbitrary-uid:latest"
+        name: "glen-test-image:latest"
     triggers:
     - generic:
         secret: b725254e6534fd70
