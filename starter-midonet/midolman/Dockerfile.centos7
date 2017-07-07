@@ -6,12 +6,12 @@ LABEL name="midokura/midonet" \
       vendor="Midokura" \
       version="5.4" \
       release="1" \
-      Summary="Midolman is a SDN agent to provide virtual networks"
+      Summary="Midolman is the Midonet SDN agent"
 
 ADD midokura.repo /etc/yum.repos.d/midokura.repo
 ADD midolman-run.sh /usr/bin/
 
-RUN INSTALL_PKGS="java-1.8.0-openjdk midolman" && \
+RUN INSTALL_PKGS="which java-1.8.0-openjdk midolman" && \
     yum -y install --setopt=tsflags=nodocs ${INSTALL_PKGS} && \
     yum clean all && \
     systemctl enable midolman
