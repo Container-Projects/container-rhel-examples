@@ -19,6 +19,4 @@ RUN INSTALL_PKGS="which java-1.8.0-openjdk midonet-cluster" && \
     yum clean all && \
     systemctl enable midonet-cluster
 
-LABEL run /usr/bin/docker run -d --privileged --net=host \$OPT1 -v /usr/lib/systemd/system/docker.service.d:/usr/lib/systemd/system/docker.service.d -v /var/run:/var/run --name \$NAME \$IMAGE \$OPT2 \$OPT3
-
 CMD ["/usr/bin/midonet-cluster-run.sh"]
