@@ -6,10 +6,14 @@ LABEL name="midokura/midonet" \
       vendor="Midokura" \
       version="5.4" \
       release="1" \
-      Summary="Midolman is an SDN agent used to connect the VMs and Containers to teh Virtual Overlay Networks"
+      summary="Midolman is an SDN agent used to connect the VMs and Containers to teh Virtual Overlay Networks" \
+      description="MidoNet is a network platform that can be used to build arbitrary network topologies on top \
+of an existing IP network without having to modify it. Midolman (the MidoNet Agent) is the daemon that runs on \
+all hosts where traffic enters and leaves MidoNet. It instructs the Open vSwitch kernel module on how to handle \
+network traffic (what modifications to apply to packets and where to tunnel them to)."
 
 ADD help.1 /help.1
-ADD license /license
+ADD licenses /licenses
 ADD midokura.repo /etc/yum.repos.d/midokura.repo
 ADD midolman-run.sh /usr/bin/
 

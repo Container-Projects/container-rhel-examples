@@ -6,10 +6,15 @@ LABEL name="midokura/midonet" \
       vendor="Midokura" \
       version="5.4" \
       release="1" \
-      Summary="Midonet Cluster is Rest API application used to manage and configure the midonet SDN networks"
+      summary="Midonet Cluster is Rest API application used to manage and configure the midonet SDN networks" \
+      description="MidoNet is a network platform that can be used to build arbitrary network topologies on top \
+of an existing IP network without having to modify it. The MidoNet Cluster is a new type of node introduced in \
+MidoNet v5 that replaces the MidoNet API. The MidoNet Cluster provides the REST API endpoint, and also hosts a \
+number of management services such as VxLAN Gateway Controller"
+	
 
 ADD help.1 /help.1
-ADD license /license
+ADD licenses /licenses
 
 # 8181 for plain and 8443 for SSL Rest API
 EXPOSE 8181 8443
