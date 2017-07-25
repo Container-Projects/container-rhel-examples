@@ -10,15 +10,15 @@ node {
 
     dockerBuildPush {
         credentialsId = "ContainerZone"
-        contextDir = "JenkinsCIDocker"
-        imageName = "JenkinsCIDocker"
+        contextDir = "jenkins-ci-docker"
+        imageName = "jenkins-ci-docker"
         imageTag = "1.0"
     }
 
     containerZoneScan {
         credentialsId = "ContainerZone"
         openShiftUri = "insecure://api.rhc4tp.openshift.com"
-        imageName = "JenkinsCIDocker"
+        imageName = "jenkins-ci-docker"
         imageTag = "1.0"
     }
 }
