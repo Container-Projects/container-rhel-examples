@@ -15,7 +15,7 @@ LABEL name="JenkinsCIDocker" \
       io.openshift.tags=""
 
 
-COPY help.1 /tmp/
+COPY help.1 /
 RUN mkdir -p /licenses
 COPY licenses /licenses
 
