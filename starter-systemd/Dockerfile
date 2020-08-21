@@ -90,11 +90,19 @@ RUN systemctl set-default multi-user.target && \
     systemctl mask  systemd-login.service dev-mqueue.mount dev-hugepages.mount \
                     systemd-remount-fs.service sys-kernel-config.mount \
                     sys-kernel-debug.mount sys-fs-fuse-connections.mount \
-                    systemd-initctl.socket display-manager.service graphical.target
+                    systemd-initctl.socket display-manager.service graphical.target \
+                    systemd-journal-flush.service systemd-update-utmp-runlevel.service \
+                    systemd-update-utmp.service
+    
+####### Add app-specific needs below. #######
+### if COPYing files that require permission mods, do so before leaving root USER
+#COPY run.sh ${APP_ROOT}/bin/
+#RUN chmod ug+x ${APP_ROOT}/bin/run.sh && \
+#     chown ${USER_UID}:0 ${APP_ROOT}/bin/run.sh
 
 ### Containers should NOT run as root as a best practice
 USER ${USER_UID}
 WORKDIR ${APP_ROOT}
 
 EXPOSE 80 443
-CMD [ "/sbin/init" ]
+CMD ["/sbin/init","--system","--unit=multi-user.target"]
