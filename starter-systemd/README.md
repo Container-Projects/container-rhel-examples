@@ -81,4 +81,3 @@ ExecStart=/bin/sh -p -c "/bin/myservice.sh"
 Type=forking
 Restart=on-failure
 ...
-```
