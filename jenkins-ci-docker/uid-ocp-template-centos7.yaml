@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: glen-test-image
+  name: starter-arbitrary-uid
 objects:
 - apiVersion: v1
   kind: DeploymentConfig
@@ -11,13 +11,13 @@ objects:
     creationTimestamp: null
     generation: 7
     labels:
-      app: glen-test-image
-    name: glen-test-image
+      app: starter-arbitrary-uid
+    name: starter-arbitrary-uid
   spec:
     replicas: 1
     selector:
-      app: glen-test-image
-      deploymentconfig: glen-test-image
+      app: starter-arbitrary-uid
+      deploymentconfig: starter-arbitrary-uid
     strategy:
       resources: {}
       rollingParams:
@@ -33,13 +33,13 @@ objects:
           openshift.io/generated-by: OpenShiftWebConsole
         creationTimestamp: null
         labels:
-          app: glen-test-image
-          deploymentconfig: glen-test-image
+          app: starter-arbitrary-uid
+          deploymentconfig: starter-arbitrary-uid
       spec:
         containers:
-        - image: glen-test-image
+        - image: starter-arbitrary-uid:centos7
           imagePullPolicy: Always
-          name: glen-test-image
+          name: starter-arbitrary-uid
           resources: {}
           terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
@@ -52,35 +52,37 @@ objects:
     - imageChangeParams:
         automatic: true
         containerNames:
-        - glen-test-image
+        - starter-arbitrary-uid
         from:
           kind: ImageStreamTag
-          name: glen-test-image:latest
+          name: starter-arbitrary-uid:centos7
       type: ImageChange
 - apiVersion: v1
   kind: ImageStream
   metadata:
     labels:
-      app: glen-test-image
-    name: glen-test-image
+      app: starter-arbitrary-uid
+    name: starter-arbitrary-uid
   spec:
     tags:
-    - name: "glen-test-image"
+    - name: "starter-arbitrary-uid"
 - apiVersion: "v1"
   kind: "BuildConfig"
   metadata:
-    name: "glen-test-image"
+    name: "starter-arbitrary-uid"
   spec:
     source:
       git:
         uri: https://github.com/RHsyseng/container-rhel-examples
-      contextDir: "glen-test-image"
+      contextDir: "starter-arbitrary-uid"
     strategy: 
       type: "Docker"
+      dockerStrategy:
+        dockerfilePath: Dockerfile.centos7
     output:
       to:
         kind: "ImageStreamTag"
-        name: "glen-test-image:latest"
+        name: "starter-arbitrary-uid:centos7"
     triggers:
     - generic:
         secret: b725254e6534fd70

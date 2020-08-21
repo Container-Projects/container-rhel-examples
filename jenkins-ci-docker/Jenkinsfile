@@ -1,0 +1,20 @@
+@Library('Utils')
+import com.redhat.*
+
+node {
+
+    createDockerCfgJenkinsCredential {
+        secretName = "containerzone"
+    }
+
+    stage('Start OpenShift Build') {
+        openshiftBuild(buildConfig: "jenkins-ci-docker-ex-reg", showBuildLogs: 'true')
+    }
+
+    containerZoneScan {
+        credentialsId = "containerzone"
+        openShiftUri = "insecure://api.rhc4tp.openshift.com"
+        imageName = "jenkins-ci-docker"
+        imageTag = "1.0"
+    }
+}

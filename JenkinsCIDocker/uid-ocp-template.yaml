@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: glen-test-image
+  name: JenkinsCIDocker
 objects:
 - apiVersion: v1
   kind: DeploymentConfig
@@ -11,13 +11,13 @@ objects:
     creationTimestamp: null
     generation: 7
     labels:
-      app: glen-test-image
-    name: glen-test-image
+      app: JenkinsCIDocker
+    name: JenkinsCIDocker
   spec:
     replicas: 1
     selector:
-      app: glen-test-image
-      deploymentconfig: glen-test-image
+      app: JenkinsCIDocker
+      deploymentconfig: JenkinsCIDocker
     strategy:
       resources: {}
       rollingParams:
@@ -33,13 +33,13 @@ objects:
           openshift.io/generated-by: OpenShiftWebConsole
         creationTimestamp: null
         labels:
-          app: glen-test-image
-          deploymentconfig: glen-test-image
+          app: JenkinsCIDocker
+          deploymentconfig: JenkinsCIDocker
       spec:
         containers:
-        - image: glen-test-image
+        - image: JenkinsCIDocker
           imagePullPolicy: Always
-          name: glen-test-image
+          name: JenkinsCIDocker
           resources: {}
           terminationMessagePath: /dev/termination-log
         dnsPolicy: ClusterFirst
@@ -52,35 +52,35 @@ objects:
     - imageChangeParams:
         automatic: true
         containerNames:
-        - glen-test-image
+        - JenkinsCIDocker
         from:
           kind: ImageStreamTag
-          name: glen-test-image:latest
+          name: JenkinsCIDocker:latest
       type: ImageChange
 - apiVersion: v1
   kind: ImageStream
   metadata:
     labels:
-      app: glen-test-image
-    name: glen-test-image
+      app: JenkinsCIDocker
+    name: JenkinsCIDocker
   spec:
     tags:
-    - name: "glen-test-image"
+    - name: "JenkinsCIDocker"
 - apiVersion: "v1"
   kind: "BuildConfig"
   metadata:
-    name: "glen-test-image"
+    name: "JenkinsCIDocker"
   spec:
     source:
       git:
-        uri: https://github.com/RHsyseng/container-rhel-examples
-      contextDir: "glen-test-image"
+        uri: https://github.com/bartockbat/container-rhel-examples
+      contextDir: "JenkinsCIDocker"
     strategy: 
       type: "Docker"
     output:
       to:
         kind: "ImageStreamTag"
-        name: "glen-test-image:latest"
+        name: "JenkinsCIDocker:latest"
     triggers:
     - generic:
         secret: b725254e6534fd70
