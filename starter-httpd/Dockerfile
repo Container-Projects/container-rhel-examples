@@ -1,10 +1,10 @@
-### docker build --pull -t acme/starter-systemd -t acme/starter-systemd:v3.2 .
+### docker build --pull -t acme/starter-httpd -t acme/starter-httpd:v3.2 .
 FROM registry.access.redhat.com/rhel7
 MAINTAINER Red Hat Systems Engineering <refarch-feedback@redhat.com>
 
 ### Atomic Labels
 ### https://github.com/projectatomic/ContainerApplicationGenericLabels
-LABEL Name="acme/starter-systemd" \
+LABEL Name="acme/starter-httpd" \
       Vendor="Acme Corp" \
       Version="3.2" \
       Release="7" \
@@ -13,22 +13,16 @@ LABEL Name="acme/starter-systemd" \
       summary="Acme Corp's Starter App" \
       description="Starter App will do ....." \
       RUN='docker run -tdi --name ${NAME} \
-      --stop-signal=RTMIN+3 \
-      -p 8080:80 \
-      -p 8443:443 \
+      -p 8080:8080 \
+      -p 8443:8443 \
       ${IMAGE}' \
       STOP='docker stop ${NAME}'
 
 ### OpenShift labels
 LABEL io.k8s.description="Starter App will do ....." \
       io.k8s.display-name="Starter App" \
-      io.openshift.expose-services="8080:http,8443:https" \
+      io.openshift.expose-services="8080:8080,8443:8443" \
       io.openshift.tags="Acme,starter,starterapp"
-
-
-### To cleanly shutdown the container use SIGRTMIN+3
-### https://www.freedesktop.org/wiki/Software/systemd/ContainerInterface/
-STOPSIGNAL SIGRTMIN+3
 
 ### Atomic Help File - Write in Markdown, it will be converted to man format at build time.
 ### https://github.com/projectatomic/container-best-practices/blob/master/creating/help.adoc
@@ -41,7 +35,7 @@ RUN yum clean all && \
 ### Add additional Red Hat repos
 #    yum-config-manager --enable rhel-server-rhscl-7-rpms && \
     yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs && \
-### Add your package needs to this installation line.
+### Add your package needs to this installation line
     yum -y install --setopt=tsflags=nodocs httpd mod_ssl && \
 ### help.md conversion
     yum -y install golang-github-cpuguy83-go-md2man && go-md2man -in help.md -out help.1 && \
@@ -69,32 +63,29 @@ RUN mkdir -p ${APP_HOME} ${APP_ROOT}/bin && \
     find ${APP_ROOT} -type d -exec chmod g+x {} +
 
 ####### Add app-specific needs below. #######
-### these are systemd requirements
-ENV container docker
-
-RUN cd /lib/systemd/system/sysinit.target.wants/; ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1 \
-rm -f /lib/systemd/system/multi-user.target.wants/*;\
-rm -f /etc/systemd/system/*.wants/*;\
-rm -f /lib/systemd/system/local-fs.target.wants/*; \
-rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
-rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-rm -f /lib/systemd/system/basic.target.wants/*;\
-rm -f /lib/systemd/system/anaconda.target.wants/*; \
-rm -f /lib/systemd/system/plymouth*; \
-rm -f /lib/systemd/system/systemd-update-utmp*;
-
-RUN systemctl set-default multi-user.target && \
-    systemctl enable httpd && \
-    # systemctl enable <service> && \
-    chmod 6755 /usr/lib/systemd/systemd && \
-    systemctl mask  systemd-login.service dev-mqueue.mount dev-hugepages.mount \
-                    systemd-remount-fs.service sys-kernel-config.mount \
-                    sys-kernel-debug.mount sys-fs-fuse-connections.mount \
-                    systemd-initctl.socket display-manager.service graphical.target
+### if COPYing or using files that require permission mods, do so before leaving root USER
+RUN chown -R ${USER_UID}:0 /run/httpd /etc/httpd /var/log/httpd && \
+    chmod -R g+rw /run/httpd /etc/httpd /var/log && \
+    find /etc/httpd -type d -exec chmod g+x {} + && \
+    find /var/log -type d -exec chmod g+x {} + && \
+    chmod g+r /etc/pki/tls/certs/localhost.crt /etc/pki/tls/private/localhost.key
 
 ### Containers should NOT run as root as a best practice
 USER ${USER_UID}
 WORKDIR ${APP_ROOT}
 
-EXPOSE 80 443
-CMD [ "/sbin/init" ]
+RUN sed -i "s/80/8080/g" /etc/httpd/conf/httpd.conf && \
+    sed -i "s/443/8443/g" /etc/httpd/conf.d/ssl.conf && \
+    sed -i "s@\/var\/www\/html@${APP_HOME}@g" /etc/httpd/conf/httpd.conf && \
+    sed -i "s@\/var\/www\/html@${APP_HOME}@g" /etc/httpd/conf.d/ssl.conf && \
+    sed -i "s/#DocumentRoot/DocumentRoot/g" /etc/httpd/conf.d/ssl.conf && \
+    sed -i "s@User apache@User ${USER_NAME}@g" /etc/httpd/conf/httpd.conf && \
+    sed -i "s/Group apache/Group root/g" /etc/httpd/conf/httpd.conf && \
+#    echo "Hello World!" > ${APP_HOME}/index.html && \
+    echo $'#!/bin/sh\n\
+rm -f /run/httpd/httpd.pid\n\
+exec httpd -DFOREGROUND' > ${APP_ROOT}/bin/run.sh && \
+    chmod ug+x ${APP_ROOT}/bin/run.sh
+
+EXPOSE 8080 8443
+CMD run.sh
