@@ -1,0 +1,13 @@
+[midonet]
+name=MidoNet
+baseurl=http://builds.midonet.org/midonet-5.4/stable/el7/
+enabled=1
+gpgcheck=1
+gpgkey=http://builds.midonet.org/midorepo.key
+
+[midonet-misc]
+name=MidoNet 3rd Party Tools and Libraries
+baseurl=http://builds.midonet.org/misc/stable/el7/
+enabled=1
+gpgcheck=1
+gpgkey=http://builds.midonet.org/midorepo.key
